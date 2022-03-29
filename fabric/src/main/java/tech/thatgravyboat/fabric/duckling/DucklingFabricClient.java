@@ -1,4 +1,4 @@
-package tech.thatgravyboat.fabric.playdate;
+package tech.thatgravyboat.fabric.duckling;
 
 import net.fabricmc.api.ClientModInitializer;
 import tech.thatgravyboat.duckling.client.DucklingClient;

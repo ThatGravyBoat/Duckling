@@ -1,4 +1,4 @@
-package tech.thatgravyboat.fabric.playdate;
+package tech.thatgravyboat.fabric.duckling;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
@@ -7,7 +7,7 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.util.registry.Registry;
 import tech.thatgravyboat.duckling.Duckling;
 import tech.thatgravyboat.duckling.common.registry.ModSpawns;
-import tech.thatgravyboat.fabric.playdate.services.FabricRegistryService;
+import tech.thatgravyboat.fabric.duckling.services.FabricRegistryService;
 import net.fabricmc.api.ModInitializer;
 
 import java.util.HashMap;

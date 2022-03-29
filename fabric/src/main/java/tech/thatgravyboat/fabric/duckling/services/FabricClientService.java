@@ -1,4 +1,4 @@
-package tech.thatgravyboat.fabric.playdate.services;
+package tech.thatgravyboat.fabric.duckling.services;
 
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.render.entity.EntityRendererFactory;
