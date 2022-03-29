@@ -126,6 +126,21 @@ public class QuacklingEntity extends MerchantEntity implements IAnimatable {
     }
 
     @Override
+    public SoundEvent getYesSound() {
+        return getAmbientSound();
+    }
+
+    @Override
+    protected SoundEvent getTradingSound(boolean sold) {
+        return getAmbientSound();
+    }
+
+    @Override
+    public void playCelebrateSound() {
+        //Do nothing
+    }
+
+    @Override
     public boolean damage(DamageSource source, float amount) {
         if (!isInvulnerableTo(source)) {
             if (isFishing()) {
