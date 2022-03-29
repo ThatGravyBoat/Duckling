@@ -57,6 +57,7 @@ body:
       options:
         - N/A
         - Forge
+        - Fabric
     validations:
       required: false
 
