@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "duckling",
+  "version": "${version}",
+  "name": "Duckling",
+  "description": "Adds some quacky little friends!\nQuacking Sounds - freesoundslibrary.com/duck-quack/\nNote: Sounds were edited out and pitched up and down.",
+  "authors": [
+    "Artist - Frogipher",
+    "Dev - ThatGravyBoat"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "All Rights Reserved",
+  "icon": "assets/duckling/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "tech.thatgravyboat.fabric.playdate.DucklingFabric"
+    ],
+    "client": [
+      "tech.thatgravyboat.fabric.playdate.DucklingFabricClient"
+    ]
+  },
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.18.2"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "display": {
+    "icon": {
+      "item": "duckling:holiday_fruit_cake"
+    },
+    "title": {
+      "translate": "advancements.duckling.holiday_fruit_cake.title"
+    },
+    "description": {
+      "translate": "advancements.duckling.holiday_fruit_cake.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "holiday_fruit_cake": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "duckling:holiday_fruit_cake"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "holiday_fruit_cake"
+    ]
+  ]
+}

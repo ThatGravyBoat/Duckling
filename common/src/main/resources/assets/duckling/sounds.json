@@ -1,0 +1,30 @@
+{
+  "quack": {
+    "subtitle": "subtitles.duckling.quack",
+    "sounds": [
+      "duckling:quack1",
+      "duckling:quack2",
+      "duckling:quack3",
+      "duckling:quack4",
+      "duckling:quack5"
+    ]
+  },
+  "deep_quack": {
+    "subtitle": "subtitles.duckling.deep_quack",
+    "sounds": [
+      "duckling:deep_quack"
+    ]
+  },
+  "duck_death": {
+    "subtitle": "subtitles.duckling.duck_death",
+    "sounds": [
+      "duckling:duck_death"
+    ]
+  },
+  "quackling_death": {
+    "subtitle": "subtitles.duckling.quackling_death",
+    "sounds": [
+      "duckling:quackling_death"
+    ]
+  }
+}

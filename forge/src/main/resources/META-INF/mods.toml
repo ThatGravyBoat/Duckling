@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+#issueTrackerURL = ""
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "duckling"
+version = "${version}"
+displayName = "Duckling"
+authors = "Artist - Frogipher, Dev - ThatGravyBoat"
+description = """
+Adds some quacky little friends!
+Quacking Sounds - freesoundslibrary.com/duck-quack/
+Note: Sounds were edited out and pitched up and down."""
+
+[[dependencies.duckling]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "[40,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.duckling]]
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "[1.18.2,)"
+    ordering = "NONE"
+    side = "BOTH"

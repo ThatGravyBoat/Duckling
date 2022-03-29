@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:wheat"
+    },
+    {
+      "item": "minecraft:sugar"
+    },
+    {
+      "item": "minecraft:sweet_berries"
+    },
+    [
+      {
+        "item": "minecraft:egg"
+      },
+      {
+        "item": "duckling:duck_egg"
+      }
+    ]
+  ],
+  "result": {
+    "item": "duckling:holiday_fruit_cake",
+    "count": 1
+  }
+}
