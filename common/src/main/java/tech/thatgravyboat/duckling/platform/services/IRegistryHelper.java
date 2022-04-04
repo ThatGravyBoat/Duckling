@@ -26,8 +26,6 @@ public interface IRegistryHelper {
 
     Supplier<SoundEvent> registerSound(String id, Supplier<SoundEvent> serializer);
 
-    <C extends CriterionConditions, T extends Criterion<C>> T createCriteria(T criterion);
-
     void addEntityToBiome(Biome.Category category, SpawnData data);
 
     <T extends MobEntity> void setSpawnRules(EntityType<T> entityType, SpawnRestriction.Location location, Heightmap.Type type, SpawnRestriction.SpawnPredicate<T> predicate);

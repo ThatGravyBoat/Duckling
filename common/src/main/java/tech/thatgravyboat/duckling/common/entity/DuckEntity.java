@@ -19,12 +19,10 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.FluidTags;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
@@ -40,7 +38,6 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import tech.thatgravyboat.duckling.common.constants.DuckVariant;
-import tech.thatgravyboat.duckling.common.registry.ModCriteria;
 import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 import tech.thatgravyboat.duckling.common.registry.ModSounds;
@@ -75,9 +72,6 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
             return ActionResult.success(player.world.isClient);
         }
         if (stackInHand.isEmpty() && this.isAlive()) {
-            if (player instanceof ServerPlayerEntity serverPlayer) {
-                ModCriteria.INTERACT.trigger(serverPlayer, this, stackInHand);
-            }
             this.world.addParticle(ParticleTypes.HEART, this.getParticleX(1.0D), this.getRandomBodyY() + 0.5D, this.getParticleZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
             return ActionResult.success(player.world.isClient);
         }
@@ -153,7 +147,7 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
         }
         if (!this.world.isClient && this.isAlive() && !this.isBaby() && --this.eggLayTime <= 0) {
             this.playSound(SoundEvents.ENTITY_CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-            this.dropItem(Items.EGG);
+            this.dropItem(ModItems.DUCK_EGG.get());
             this.eggLayTime = this.random.nextInt(6000) + 6000;
         }
     }

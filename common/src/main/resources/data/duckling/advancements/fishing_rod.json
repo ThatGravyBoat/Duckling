@@ -17,15 +17,13 @@
   },
   "criteria": {
     "give_fishing_rod": {
-      "trigger": "duckling:interact",
+      "trigger": "player_interacted_with_entity",
       "conditions": {
-        "items": [
-          {
+        "item": {
             "items": [
               "minecraft:fishing_rod"
             ]
-          }
-        ],
+        },
         "entity": {
           "type": "duckling:quackling"
         }

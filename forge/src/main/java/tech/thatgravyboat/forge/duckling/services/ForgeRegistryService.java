@@ -65,11 +65,6 @@ public class ForgeRegistryService implements IRegistryHelper {
     }
 
     @Override
-    public <C extends CriterionConditions, T extends Criterion<C>> T createCriteria(T criterion) {
-        return Criteria.register(criterion);
-    }
-
-    @Override
     public void addEntityToBiome(Biome.Category category, SpawnData data) {
         ENTITY_SPAWNS.put(category, data);
     }

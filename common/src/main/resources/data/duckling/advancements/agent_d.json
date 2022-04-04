@@ -17,8 +17,13 @@
   },
   "criteria": {
     "pet_agent_d": {
-      "trigger": "duckling:interact",
+      "trigger": "player_interacted_with_entity",
       "conditions": {
+        "item": {
+          "items": [
+            "minecraft:air"
+          ]
+        },
         "entity": {
           "type": "duckling:duck",
           "nbt": "{\"AgentD\":1b}"

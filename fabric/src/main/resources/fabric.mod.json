@@ -9,18 +9,18 @@
     "Dev - ThatGravyBoat"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/duckling",
+    "sources": "https://github.com/Toadstool-Studios/duckling"
   },
   "license": "All Rights Reserved",
   "icon": "assets/duckling/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "tech.thatgravyboat.fabric.playdate.DucklingFabric"
+      "tech.thatgravyboat.fabric.duckling.DucklingFabric"
     ],
     "client": [
-      "tech.thatgravyboat.fabric.playdate.DucklingFabricClient"
+      "tech.thatgravyboat.fabric.duckling.DucklingFabricClient"
     ]
   },
   "depends": {

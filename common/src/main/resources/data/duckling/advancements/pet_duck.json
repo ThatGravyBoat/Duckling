@@ -17,8 +17,13 @@
   },
   "criteria": {
     "pet_duck": {
-      "trigger": "duckling:interact",
+      "trigger": "player_interacted_with_entity",
       "conditions": {
+        "item": {
+          "items": [
+            "minecraft:air"
+          ]
+        },
         "entity": {
           "type": "duckling:duck"
         }

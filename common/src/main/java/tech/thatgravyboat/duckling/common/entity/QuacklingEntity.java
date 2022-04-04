@@ -20,7 +20,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.stat.Stats;
@@ -41,7 +40,6 @@ import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
-import tech.thatgravyboat.duckling.common.registry.ModCriteria;
 import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 import tech.thatgravyboat.duckling.common.registry.ModSounds;
@@ -199,8 +197,6 @@ public class QuacklingEntity extends MerchantEntity implements IAnimatable {
         if (itemStack.isOf(Items.FISHING_ROD) && !this.isFishing()) {
             getDataTracker().set(FISHING_ROD, itemStack);
             player.setStackInHand(hand, ItemStack.EMPTY);
-            if (player instanceof ServerPlayerEntity serverPlayer)
-                ModCriteria.INTERACT.trigger(serverPlayer, this, itemStack);
             return ActionResult.success(world.isClient);
         }
         if (this.isFishing() && itemStack.isEmpty() && player.isSneaking()) {

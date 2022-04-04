@@ -25,7 +25,6 @@ public class Duckling {
         ModItems.register();
         ModEntities.register();
         ModSounds.register();
-        ModCriteria.register();
     }
 
     public static void lateInit() {
