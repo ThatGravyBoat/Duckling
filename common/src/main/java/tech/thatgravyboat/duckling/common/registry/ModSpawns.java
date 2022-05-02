@@ -12,7 +12,7 @@ public class ModSpawns {
 
     public static void addSpawns() {
         CommonServices.REGISTRY.addEntityToBiome(Biome.Category.RIVER,
-                new SpawnData(ModEntities.DUCK.get(), SpawnGroup.WATER_CREATURE, 100, 3, 4));
+                new SpawnData(ModEntities.DUCK.get(), SpawnGroup.WATER_CREATURE, 100, 3, 4, precipitation -> !precipitation.equals(Biome.Precipitation.SNOW)));
         CommonServices.REGISTRY.addEntityToBiome(Biome.Category.SWAMP,
                 new SpawnData(ModEntities.QUACKLING.get(), SpawnGroup.WATER_CREATURE, 1, 0, 1));
     }

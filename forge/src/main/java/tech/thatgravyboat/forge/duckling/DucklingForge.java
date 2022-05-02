@@ -26,6 +26,8 @@ import java.util.Map;
 @Mod(Duckling.MODID)
 public class DucklingForge {
 
+    private static boolean registeredSpawns = false;
+
     public DucklingForge() {
         Duckling.init();
 
@@ -47,8 +49,12 @@ public class DucklingForge {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void addSpawns(BiomeLoadingEvent event) {
-        ModSpawns.addSpawns();
+        if (!registeredSpawns) {
+            ModSpawns.addSpawns();
+            registeredSpawns = true;
+        }
         for (SpawnData spawnData : ForgeRegistryService.ENTITY_SPAWNS.get(event.getCategory())) {
+            if (spawnData.shouldSpawn().test(event.getClimate().precipitation))
             event.getSpawns().spawn(spawnData.group(),
                     new SpawnSettings.SpawnEntry(spawnData.entityType(), spawnData.weight(), spawnData.min(), spawnData.max()));
         }

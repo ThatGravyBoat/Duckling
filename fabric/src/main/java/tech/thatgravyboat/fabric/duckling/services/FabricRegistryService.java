@@ -58,7 +58,7 @@ public class FabricRegistryService implements IRegistryHelper {
 
     @Override
     public void addEntityToBiome(Biome.Category category, SpawnData data) {
-        BiomeModifications.addSpawn(BiomeSelectors.categories(category), data.group(), data.entityType(), data.weight(), data.min(), data.max());
+        BiomeModifications.addSpawn(BiomeSelectors.categories(category).and(ctx -> data.shouldSpawn().test(ctx.getBiome().getPrecipitation())), data.group(), data.entityType(), data.weight(), data.min(), data.max());
     }
 
     @Override
