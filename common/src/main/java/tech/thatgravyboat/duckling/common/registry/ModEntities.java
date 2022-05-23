@@ -21,9 +21,9 @@ public class ModEntities {
     }
 
     public static final Supplier<EntityType<DuckEntity>> DUCK = CommonServices.REGISTRY.registerEntity("duck",
-            DuckEntity::new, SpawnGroup.WATER_CREATURE, 0.75f, 0.75f);
+            DuckEntity::new, SpawnGroup.WATER_CREATURE, 0.7F, 0.6F);
     public static final Supplier<EntityType<QuacklingEntity>> QUACKLING = CommonServices.REGISTRY.registerEntity("quackling",
-            QuacklingEntity::new, SpawnGroup.CREATURE, 1.5f, 0.75f);
+            QuacklingEntity::new, SpawnGroup.WATER_CREATURE, 1.5f, 0.75f);
     public static final Supplier<EntityType<DuckEggEntity>> DUCK_EGG = CommonServices.REGISTRY.registerEntity("duck_egg",
             DuckEggEntity::new, SpawnGroup.MISC, 0.25f, 0.25f);
 

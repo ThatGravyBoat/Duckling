@@ -1,8 +1,6 @@
 package tech.thatgravyboat.duckling.common.entity;
 
-import net.minecraft.entity.EntityData;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -134,7 +132,6 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
         nbt.putString("Variant", this.getDataTracker().get(VARIANT).name());
-        nbt.putBoolean("AgentD", this.getName().asString().equalsIgnoreCase("agent d"));
         nbt.putInt("EggLayTime", this.eggLayTime);
     }
 
@@ -175,6 +172,11 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
             duckEntity.getDataTracker().set(VARIANT, variant);
         }
         return duckEntity;
+    }
+
+    @Override
+    protected float getActiveEyeHeight(EntityPose pose, EntityDimensions dimensions) {
+        return this.isBaby() ? dimensions.height * 0.85F : dimensions.height * 0.92F;
     }
 
     public DuckVariant getTexture() {
