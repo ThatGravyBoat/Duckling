@@ -9,6 +9,7 @@ import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
@@ -48,7 +49,8 @@ public class DuckEggEntity extends ThrownItemEntity {
                     DuckEntity duck = ModEntities.DUCK.get().create(this.world);
                     if (duck != null) {
                         duck.setBreedingAge(-24000);
-                        duck.refreshPositionAndAngles(this.getX(), this.getY(), this.getZ(), this.getYaw(), 0.0F);
+                        BlockPos pos = this.getBlockPos();
+                        duck.refreshPositionAndAngles(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, this.getYaw(), 0.0F);
                         this.world.spawnEntity(duck);
                     }
                 }
