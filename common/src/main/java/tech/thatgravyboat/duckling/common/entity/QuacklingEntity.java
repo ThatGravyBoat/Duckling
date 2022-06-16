@@ -1,37 +1,34 @@
 package tech.thatgravyboat.duckling.common.entity;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.entity.EntityData;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradeOfferList;
-import net.minecraft.village.TradeOffers;
-import net.minecraft.village.VillagerProfession;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.World;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.item.trading.MerchantOffers;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -46,63 +43,63 @@ import tech.thatgravyboat.duckling.common.registry.ModSounds;
 
 import java.util.EnumSet;
 
-public class QuacklingEntity extends MerchantEntity implements IAnimatable {
+public class QuacklingEntity extends AbstractVillager implements IAnimatable {
 
-    private static final TradeOffers.Factory HOLIDAY_CAKE = (entity, random) -> new TradeOffer(new ItemStack(Items.EMERALD, 3), new ItemStack(ModItems.HOLIDAY_FRUIT_CAKE.get(), 3), 12, 10, 0.05F);
+    private static final VillagerTrades.ItemListing HOLIDAY_CAKE = (entity, random) -> new MerchantOffer(new ItemStack(Items.EMERALD, 3), new ItemStack(ModItems.HOLIDAY_FRUIT_CAKE.get(), 3), 12, 10, 0.05F);
 
-    public static final Ingredient BREEDING_INGREDIENT = Ingredient.ofItems(ModItems.HOLIDAY_FRUIT_CAKE.get());
-    private static final TrackedData<Boolean> DRIPPED = DataTracker.registerData(QuacklingEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    public static final TrackedData<ItemStack> FISHING_ROD = DataTracker.registerData(QuacklingEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+    public static final Ingredient BREEDING_INGREDIENT = Ingredient.of(ModItems.HOLIDAY_FRUIT_CAKE.get());
+    private static final EntityDataAccessor<Boolean> DRIPPED = SynchedEntityData.defineId(QuacklingEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<ItemStack> FISHING_ROD = SynchedEntityData.defineId(QuacklingEntity.class, EntityDataSerializers.ITEM_STACK);
 
     private final AnimationFactory factory = new AnimationFactory(this);
 
-    public QuacklingEntity(EntityType<? extends MerchantEntity> entityType, World world) {
+    public QuacklingEntity(EntityType<? extends AbstractVillager> entityType, Level world) {
         super(entityType, world);
     }
 
-    public static DefaultAttributeContainer.Builder createQuacklingAttributes() {
-        return MobEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25);
+    public static AttributeSupplier.Builder createQuacklingAttributes() {
+        return Mob.createMobAttributes()
+                .add(Attributes.MOVEMENT_SPEED, 0.25);
     }
 
     @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.getDataTracker().startTracking(DRIPPED, false);
-        this.getDataTracker().startTracking(FISHING_ROD, ItemStack.EMPTY);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(DRIPPED, false);
+        this.getEntityData().define(FISHING_ROD, ItemStack.EMPTY);
     }
 
     @Override
-    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
-        var initialize = super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor world, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
+        var initialize = super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
         setDripped(world.getRandom().nextBoolean());
         return initialize;
     }
 
     public boolean isDripped() {
-        return this.getDataTracker().get(DRIPPED);
+        return this.getEntityData().get(DRIPPED);
     }
 
     public void setDripped(boolean dripped) {
-        this.getDataTracker().set(DRIPPED, dripped);
+        this.getEntityData().set(DRIPPED, dripped);
     }
 
     public boolean isFishing() {
-        return !this.getDataTracker().get(FISHING_ROD).isEmpty();
+        return !this.getEntityData().get(FISHING_ROD).isEmpty();
     }
 
     @Override
-    protected void initGoals() {
-        this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(1, new StopFollowingCustomerGoal(this));
-        this.goalSelector.add(1, new EscapeDangerGoal(this, 1.2D));
-        this.goalSelector.add(1, new LookAtCustomerGoal(this));
-        this.goalSelector.add(2, new FishingGoal(this));
-        this.goalSelector.add(3, new TemptGoal(this, 1.0D, BREEDING_INGREDIENT, false));
-        this.goalSelector.add(4, new GoToWalkTargetGoal(this, 1D));
-        this.goalSelector.add(8, new WanderAroundFarGoal(this, 1D));
-        this.goalSelector.add(9, new StopAndLookAtEntityGoal(this, PlayerEntity.class, 3.0F, 1.0F));
-        this.goalSelector.add(10, new LookAtEntityGoal(this, MobEntity.class, 8.0F));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new TradeWithPlayerGoal(this));
+        this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
+        this.goalSelector.addGoal(1, new LookAtTradingPlayerGoal(this));
+        this.goalSelector.addGoal(2, new FishingGoal(this));
+        this.goalSelector.addGoal(3, new TemptGoal(this, 1.0D, BREEDING_INGREDIENT, false));
+        this.goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 1D));
+        this.goalSelector.addGoal(8, new WaterAvoidingRandomStrollGoal(this, 1D));
+        this.goalSelector.addGoal(9, new InteractGoal(this, Player.class, 3.0F, 1.0F));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
     }
 
     @Nullable
@@ -113,7 +110,7 @@ public class QuacklingEntity extends MerchantEntity implements IAnimatable {
 
     @Nullable
     @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
+    protected SoundEvent getHurtSound(@NotNull DamageSource source) {
         return ModSounds.QUACKLING_DEATH.get();
     }
 
@@ -124,12 +121,12 @@ public class QuacklingEntity extends MerchantEntity implements IAnimatable {
     }
 
     @Override
-    public SoundEvent getYesSound() {
+    public SoundEvent getNotifyTradeSound() {
         return getAmbientSound();
     }
 
     @Override
-    protected SoundEvent getTradingSound(boolean sold) {
+    protected SoundEvent getTradeUpdatedSound(boolean sold) {
         return getAmbientSound();
     }
 
@@ -139,117 +136,117 @@ public class QuacklingEntity extends MerchantEntity implements IAnimatable {
     }
 
     @Override
-    public boolean damage(DamageSource source, float amount) {
+    public boolean hurt(@NotNull DamageSource source, float amount) {
         if (!isInvulnerableTo(source)) {
             if (isFishing()) {
-                var stack = getDataTracker().get(FISHING_ROD).copy();
-                dropStack(stack);
-                getDataTracker().set(FISHING_ROD, ItemStack.EMPTY);
+                var stack = getEntityData().get(FISHING_ROD).copy();
+                spawnAtLocation(stack);
+                getEntityData().set(FISHING_ROD, ItemStack.EMPTY);
             }
-            this.world.sendEntityStatus(this, (byte) 13);
+            this.level.broadcastEntityEvent(this, (byte) 13);
         }
-        return super.damage(source, amount);
+        return super.hurt(source, amount);
     }
 
     @Override
-    protected void afterUsing(TradeOffer offer) {
-        this.world.sendEntityStatus(this, (byte) 14);
+    protected void rewardTradeXp(@NotNull MerchantOffer merchantOffer) {
+        this.level.broadcastEntityEvent(this, (byte) 14);
     }
 
     @Override
-    public void handleStatus(byte status) {
+    public void handleEntityEvent(byte status) {
         if (status == 13) {
-            this.produceParticles(ParticleTypes.ANGRY_VILLAGER);
+            this.addParticlesAroundSelf(ParticleTypes.ANGRY_VILLAGER);
         } else if (status == 14) {
-            this.produceParticles(ParticleTypes.HAPPY_VILLAGER);
+            this.addParticlesAroundSelf(ParticleTypes.HAPPY_VILLAGER);
         } else {
-            super.handleStatus(status);
+            super.handleEntityEvent(status);
         }
     }
 
     @Override
-    protected void fillRecipes() {
+    protected void updateTrades() {
         fillRecipesForLevel(1);
         fillRecipesForLevel(2);
         fillRecipesForLevel(3);
-        this.getOffers().add(HOLIDAY_CAKE.create(this, this.random));
+        this.getOffers().add(HOLIDAY_CAKE.getOffer(this, this.random));
     }
 
     private void fillRecipesForLevel(int level) {
-        Int2ObjectMap<TradeOffers.Factory[]> int2ObjectMap = TradeOffers.PROFESSION_TO_LEVELED_TRADE.get(VillagerProfession.FISHERMAN);
+        Int2ObjectMap<VillagerTrades.ItemListing[]> int2ObjectMap = VillagerTrades.TRADES.get(VillagerProfession.FISHERMAN);
         if (int2ObjectMap != null && !int2ObjectMap.isEmpty()) {
-            TradeOffers.Factory[] factories = int2ObjectMap.get(level);
+            VillagerTrades.ItemListing[] factories = int2ObjectMap.get(level);
             if (factories != null) {
-                TradeOfferList tradeOfferList = this.getOffers();
-                this.fillRecipesFromPool(tradeOfferList, factories, 2);
+                MerchantOffers tradeOfferList = this.getOffers();
+                this.addOffersFromItemListings(tradeOfferList, factories, 2);
             }
         }
     }
 
     @Override
-    public boolean isLeveledMerchant() {
+    public boolean showProgressBar() {
         return false;
     }
 
     @Override
-    public ActionResult interactMob(PlayerEntity player, Hand hand) {
-        ItemStack itemStack = player.getStackInHand(hand);
-        if (itemStack.isOf(Items.FISHING_ROD) && !this.isFishing()) {
-            getDataTracker().set(FISHING_ROD, itemStack);
-            player.setStackInHand(hand, ItemStack.EMPTY);
-            return ActionResult.success(world.isClient);
+    public InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
+        ItemStack itemStack = player.getItemInHand(hand);
+        if (itemStack.is(Items.FISHING_ROD) && !this.isFishing()) {
+            getEntityData().set(FISHING_ROD, itemStack);
+            player.setItemInHand(hand, ItemStack.EMPTY);
+            return InteractionResult.sidedSuccess(level.isClientSide());
         }
-        if (this.isFishing() && itemStack.isEmpty() && player.isSneaking()) {
-            var stack = getDataTracker().get(FISHING_ROD).copy();
-            getDataTracker().set(FISHING_ROD, ItemStack.EMPTY);
-            player.setStackInHand(hand, stack);
-            return ActionResult.success(world.isClient);
+        if (this.isFishing() && itemStack.isEmpty() && player.isShiftKeyDown()) {
+            var stack = getEntityData().get(FISHING_ROD).copy();
+            getEntityData().set(FISHING_ROD, ItemStack.EMPTY);
+            player.setItemInHand(hand, stack);
+            return InteractionResult.sidedSuccess(level.isClientSide());
         }
 
-        if (itemStack.isOf(Items.SHEARS) && isDripped()) {
+        if (itemStack.is(Items.SHEARS) && isDripped()) {
             setDripped(false);
-            dropItem(Items.BIG_DRIPLEAF);
-            return ActionResult.success(world.isClient);
-        } else if (this.getHealth() < this.getMaxHealth() && itemStack.isOf(ModItems.HOLIDAY_FRUIT_CAKE.get()) && this.isAlive()) {
+            spawnAtLocation(Items.BIG_DRIPLEAF);
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        } else if (this.getHealth() < this.getMaxHealth() && itemStack.is(ModItems.HOLIDAY_FRUIT_CAKE.get()) && this.isAlive()) {
             this.heal(1f);
-            itemStack.decrement(1);
-            this.world.addParticle(ParticleTypes.HEART, this.getParticleX(1.0D), this.getRandomBodyY() + 0.5D, this.getParticleZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
-            return ActionResult.success(this.world.isClient);
-        }else if (!itemStack.isOf(ModItems.QUACKLING_SPAWN_EGG.get()) && this.isAlive() && !this.hasCustomer() && !this.isFishing()) {
-            if (hand == Hand.MAIN_HAND) {
-                player.incrementStat(Stats.TALKED_TO_VILLAGER);
+            itemStack.shrink(1);
+            this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomX(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        }else if (!itemStack.is(ModItems.QUACKLING_SPAWN_EGG.get()) && this.isAlive() && !this.isTrading() && !this.isFishing()) {
+            if (hand == InteractionHand.MAIN_HAND) {
+                player.awardStat(Stats.TALKED_TO_VILLAGER);
             }
 
-            if (!this.getOffers().isEmpty() && !this.world.isClient) {
-                this.setCustomer(player);
-                this.sendOffers(player, this.getDisplayName(), 1);
+            if (!this.getOffers().isEmpty() && !level.isClientSide()) {
+                this.setTradingPlayer(player);
+                this.openTradingScreen(player, this.getDisplayName(), 1);
             }
-            return ActionResult.success(this.world.isClient);
+            return InteractionResult.sidedSuccess(level.isClientSide());
         } else {
-            return super.interactMob(player, hand);
+            return super.mobInteract(player, hand);
         }
     }
 
     @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
+    public void readAdditionalSaveData(@NotNull CompoundTag nbt) {
+        super.readAdditionalSaveData(nbt);
         setDripped(nbt.getBoolean("Dripped"));
         if (nbt.contains("FishingRod", 10))
-            this.getDataTracker().set(FISHING_ROD, ItemStack.fromNbt(nbt.getCompound("FishingRod")));
+            this.getEntityData().set(FISHING_ROD, ItemStack.of(nbt.getCompound("FishingRod")));
     }
 
     @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
+    public void addAdditionalSaveData(@NotNull CompoundTag nbt) {
+        super.addAdditionalSaveData(nbt);
         nbt.putBoolean("Dripped", isDripped());
-        var stack = this.getDataTracker().get(FISHING_ROD);
+        var stack = this.getEntityData().get(FISHING_ROD);
         if (!stack.isEmpty())
-            nbt.put("FishingRod", stack.writeNbt(new NbtCompound()));
+            nbt.put("FishingRod", stack.save(new CompoundTag()));
     }
 
     @Nullable
     @Override
-    public PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
+    public QuacklingEntity getBreedOffspring(@NotNull ServerLevel world, @NotNull AgeableMob entity) {
         return ModEntities.QUACKLING.get().create(world);
     }
 
@@ -267,7 +264,7 @@ public class QuacklingEntity extends MerchantEntity implements IAnimatable {
     }
 
     @Override
-    public boolean cannotDespawn() {
+    public boolean requiresCustomPersistence() {
         return true;
     }
 
@@ -288,11 +285,11 @@ public class QuacklingEntity extends MerchantEntity implements IAnimatable {
 
         public FishingGoal(QuacklingEntity entity) {
             this.entity = entity;
-            this.setControls(EnumSet.of(Control.JUMP, Control.MOVE, Control.LOOK));
+            this.setFlags(EnumSet.of(Flag.JUMP, Flag.MOVE, Flag.LOOK));
         }
 
         @Override
-        public boolean canStart() {
+        public boolean canUse() {
             return entity.isFishing();
         }
     }

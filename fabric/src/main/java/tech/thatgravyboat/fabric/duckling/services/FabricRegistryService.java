@@ -4,16 +4,13 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.mixin.object.builder.SpawnRestrictionAccessor;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.advancement.criterion.Criterion;
-import net.minecraft.advancement.criterion.CriterionConditions;
-import net.minecraft.entity.*;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.Heightmap;
 import tech.thatgravyboat.duckling.platform.SpawnData;
 import tech.thatgravyboat.duckling.platform.services.IRegistryHelper;
 
@@ -35,7 +32,7 @@ public class FabricRegistryService implements IRegistryHelper {
     }
 
     @Override
-    public <T extends MobEntity> Supplier<SpawnEggItem> registerSpawnEgg(String id, Supplier<EntityType<T>> entity, int primaryColor, int secondaryColor, Item.Settings settings) {
+    public <T extends Mob> Supplier<SpawnEggItem> registerSpawnEgg(String id, Supplier<EntityType<T>> entity, int primaryColor, int secondaryColor, Item.Properties settings) {
         var object = new SpawnEggItem(entity.get(), primaryColor, secondaryColor, settings);
         ITEMS.put(id, () -> object);
         return () -> object;
@@ -43,8 +40,8 @@ public class FabricRegistryService implements IRegistryHelper {
 
 
     @Override
-    public <T extends Entity> Supplier<EntityType<T>> registerEntity(String id, EntityType.EntityFactory<T> factory, SpawnGroup group, float height, float width) {
-        var object = FabricEntityTypeBuilder.create(group, factory).dimensions(EntityDimensions.fixed(width, height)).build();
+    public <T extends Entity> Supplier<EntityType<T>> registerEntity(String id, EntityType.EntityFactory<T> factory, MobCategory group, float height, float width) {
+        var object = FabricEntityTypeBuilder.create(group, factory).dimensions(EntityDimensions.scalable(width, height)).build();
         ENTITIES.put(id, () -> object);
         return () -> object;
     }
@@ -57,12 +54,12 @@ public class FabricRegistryService implements IRegistryHelper {
     }
 
     @Override
-    public void addEntityToBiome(Biome.Category category, SpawnData data) {
-        BiomeModifications.addSpawn(BiomeSelectors.categories(category).and(ctx -> data.shouldSpawn().test(ctx.getBiome().getPrecipitation())), data.group(), data.entityType(), data.weight(), data.min(), data.max());
+    public void addEntityToBiome(TagKey<Biome> category, SpawnData data) {
+        BiomeModifications.addSpawn(BiomeSelectors.tag(category).and(ctx -> data.shouldSpawn().test(ctx.getBiome().getPrecipitation())), data.group(), data.entityType(), data.weight(), data.min(), data.max());
     }
 
     @Override
-    public <T extends MobEntity> void setSpawnRules(EntityType<T> entityType, SpawnRestriction.Location location, Heightmap.Type type, SpawnRestriction.SpawnPredicate<T> predicate) {
+    public <T extends Mob> void setSpawnRules(EntityType<T> entityType, SpawnPlacements.Type location, Heightmap.Types type, SpawnPlacements.SpawnPredicate<T> predicate) {
         SpawnRestrictionAccessor.callRegister(entityType, location, type, predicate);
     }
 

@@ -1,28 +1,29 @@
 package tech.thatgravyboat.duckling.client.rendering;
 
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.LightType;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 import tech.thatgravyboat.duckling.common.entity.DuckEntity;
 
 public class DuckRenderer extends GeoEntityRenderer<DuckEntity> {
-    public DuckRenderer(EntityRendererFactory.Context ctx) {
+    public DuckRenderer(EntityRendererProvider.Context ctx) {
         super(ctx, new DuckModel());
     }
 
     @Override
-    public void renderEarly(DuckEntity animatable, MatrixStack stackIn, float ticks, VertexConsumerProvider renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
+    public void renderEarly(DuckEntity animatable, PoseStack stackIn, float ticks, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float partialTicks) {
         super.renderEarly(animatable, stackIn, ticks, renderTypeBuffer, vertexBuilder, packedLightIn, packedOverlayIn, red, green, blue, partialTicks);
 
         if (animatable.isBaby())
@@ -30,71 +31,75 @@ public class DuckRenderer extends GeoEntityRenderer<DuckEntity> {
     }
 
     @Override
-    public void render(DuckEntity entity, float entityYaw, float partialTicks, MatrixStack stack, VertexConsumerProvider bufferIn, int packedLightIn) {
+    public void render(@NotNull DuckEntity entity, float entityYaw, float partialTicks, @NotNull PoseStack stack, @NotNull MultiBufferSource bufferIn, int packedLightIn) {
         super.render(entity, entityYaw, partialTicks, stack, bufferIn, packedLightIn);
-        Entity holdingEntity = entity.getHoldingEntity();
+        Entity holdingEntity = entity.getLeashHolder();
         if (holdingEntity != null) {
             this.renderLeash(entity, partialTicks, stack, bufferIn, holdingEntity);
         }
     }
 
     @Override
-    public RenderLayer getRenderType(DuckEntity animatable, float partialTicks, MatrixStack stack, VertexConsumerProvider renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, Identifier textureLocation) {
-        return RenderLayer.getEntityTranslucent(textureLocation);
+    public ResourceLocation getTextureLocation(DuckEntity entity) {
+        return entity.getTexture().texture;
     }
 
-    private <E extends Entity> void renderLeash(DuckEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider provider, E holdingEntity) {
-        matrices.push();
-        Vec3d vec3d = holdingEntity.getLeashPos(tickDelta);
-        double d = (double)(MathHelper.lerp(tickDelta, entity.bodyYaw, entity.prevBodyYaw) * 0.017453292F) + 1.5707963267948966D;
-        Vec3d vec3d2 = entity.getLeashOffset();
-        double e = Math.cos(d) * vec3d2.z + Math.sin(d) * vec3d2.x;
-        double f = Math.sin(d) * vec3d2.z - Math.cos(d) * vec3d2.x;
-        double g = MathHelper.lerp(tickDelta, entity.prevX, entity.getX()) + e;
-        double h = MathHelper.lerp(tickDelta, entity.prevY, entity.getY()) + vec3d2.y;
-        double i = MathHelper.lerp(tickDelta, entity.prevZ, entity.getZ()) + f;
-        matrices.translate(e, vec3d2.y, f);
-        float j = (float)(vec3d.x - g);
-        float k = (float)(vec3d.y - h);
-        float l = (float)(vec3d.z - i);
-        float m = 0.025F;
-        VertexConsumer vertexConsumer = provider.getBuffer(RenderLayer.getLeash());
-        Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-        float n = MathHelper.fastInverseSqrt(j * j + l * l) * 0.025F / 2.0F;
-        float o = l * n;
-        float p = j * n;
-        BlockPos blockPos = new BlockPos(entity.getCameraPosVec(tickDelta));
-        BlockPos blockPos2 = new BlockPos(holdingEntity.getCameraPosVec(tickDelta));
-        int q = this.getBlockLight(entity, blockPos);
-        int r = holdingEntity.isOnFire() ? 15 : holdingEntity.world.getLightLevel(LightType.BLOCK, blockPos2);
-        int s = entity.world.getLightLevel(LightType.SKY, blockPos);
-        int t = entity.world.getLightLevel(LightType.SKY, blockPos2);
-
-        int u;
-        for(u = 0; u <= 24; ++u) {
-            renderLeashPiece(vertexConsumer, matrix4f, j, k, l, q, r, s, t, 0.025F, 0.025F, o, p, u, false);
-        }
-
-        for(u = 24; u >= 0; --u) {
-            renderLeashPiece(vertexConsumer, matrix4f, j, k, l, q, r, s, t, 0.025F, 0.0F, o, p, u, true);
-        }
-
-        matrices.pop();
+    @Override
+    public RenderType getRenderType(DuckEntity animatable, float partialTicks, PoseStack stack, MultiBufferSource renderTypeBuffer, VertexConsumer vertexBuilder, int packedLightIn, ResourceLocation textureLocation) {
+        return RenderType.entityTranslucent(textureLocation);
     }
 
-    private static void renderLeashPiece(VertexConsumer vertexConsumer, Matrix4f positionMatrix, float f, float g, float h, int leashedEntityBlockLight, int holdingEntityBlockLight, int leashedEntitySkyLight, int holdingEntitySkyLight, float i, float j, float k, float l, int pieceIndex, boolean isLeashKnot) {
-        float m = (float)pieceIndex / 24.0F;
-        int n = (int) MathHelper.lerp(m, (float)leashedEntityBlockLight, (float)holdingEntityBlockLight);
-        int o = (int)MathHelper.lerp(m, (float)leashedEntitySkyLight, (float)holdingEntitySkyLight);
-        int p = LightmapTextureManager.pack(n, o);
-        float q = pieceIndex % 2 == (isLeashKnot ? 1 : 0) ? 0.7F : 1.0F;
-        float r = 0.5F * q;
-        float s = 0.4F * q;
-        float t = 0.3F * q;
-        float u = f * m;
-        float v = g > 0.0F ? g * m * m : g - g * (1.0F - m) * (1.0F - m);
-        float w = h * m;
-        vertexConsumer.vertex(positionMatrix, u - k, v + j, w + l).color(r, s, t, 1.0F).light(p).next();
-        vertexConsumer.vertex(positionMatrix, u + k, v + i - j, w - l).color(r, s, t, 1.0F).light(p).next();
+    private <E extends Entity> void renderLeash(DuckEntity mob, float f, PoseStack poseStack, MultiBufferSource multiBufferSource, E entity) {
+        poseStack.pushPose();
+        Vec3 vec3 = entity.getRopeHoldPosition(f);
+        double d = (double)(Mth.lerp(f, mob.yBodyRotO, mob.yBodyRot) * 0.017453292F) + 1.5707963267948966D;
+        Vec3 vec32 = mob.getLeashOffset();
+        double e = Math.cos(d) * vec32.z + Math.sin(d) * vec32.x;
+        double g = Math.sin(d) * vec32.z - Math.cos(d) * vec32.x;
+        double h = Mth.lerp(f, mob.xo, mob.getX()) + e;
+        double i = Mth.lerp(f, mob.yo, mob.getY()) + vec32.y;
+        double j = Mth.lerp(f, mob.zo, mob.getZ()) + g;
+        poseStack.translate(e, vec32.y, g);
+        float k = (float)(vec3.x - h);
+        float l = (float)(vec3.y - i);
+        float m = (float)(vec3.z - j);
+        VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.leash());
+        Matrix4f matrix4f = poseStack.last().pose();
+        float o = Mth.fastInvSqrt(k * k + m * m) * 0.025F / 2.0F;
+        float p = m * o;
+        float q = k * o;
+        BlockPos blockPos = new BlockPos(mob.getEyePosition(f));
+        BlockPos blockPos2 = new BlockPos(entity.getEyePosition(f));
+        int r = this.getBlockLightLevel(mob, blockPos);
+        int s = entity.isOnFire() ? 15 : entity.level.getBrightness(LightLayer.BLOCK, blockPos2);
+        int t = mob.level.getBrightness(LightLayer.SKY, blockPos);
+        int u = mob.level.getBrightness(LightLayer.SKY, blockPos2);
+
+        int v;
+        for(v = 0; v <= 24; ++v) {
+            addVertexPair(vertexConsumer, matrix4f, k, l, m, r, s, t, u, 0.025F, p, q, v, false);
+        }
+
+        for(v = 24; v >= 0; --v) {
+            addVertexPair(vertexConsumer, matrix4f, k, l, m, r, s, t, u, 0.0F, p, q, v, true);
+        }
+
+        poseStack.popPose();
+    }
+
+    private static void addVertexPair(VertexConsumer vertexConsumer, Matrix4f matrix4f, float f, float g, float h, int i, int j, int k, int l, float n, float o, float p, int q, boolean bl) {
+        float r = (float)q / 24.0F;
+        int s = (int)Mth.lerp(r, (float)i, (float)j);
+        int t = (int)Mth.lerp(r, (float)k, (float)l);
+        int u = LightTexture.pack(s, t);
+        float v = q % 2 == (bl ? 1 : 0) ? 0.7F : 1.0F;
+        float w = 0.5F * v;
+        float x = 0.4F * v;
+        float y = 0.3F * v;
+        float z = f * r;
+        float aa = g > 0.0F ? g * r * r : g - g * (1.0F - r) * (1.0F - r);
+        float ab = h * r;
+        vertexConsumer.vertex(matrix4f, z - o, aa + n, ab + p).color(w, x, y, 1.0F).uv2(u).endVertex();
+        vertexConsumer.vertex(matrix4f, z + o, aa + (float) 0.025 - n, ab - p).color(w, x, y, 1.0F).uv2(u).endVertex();
     }
 }

@@ -1,6 +1,6 @@
 package tech.thatgravyboat.duckling.common.registry;
 
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
 import tech.thatgravyboat.duckling.Duckling;
 import tech.thatgravyboat.duckling.platform.CommonServices;
 

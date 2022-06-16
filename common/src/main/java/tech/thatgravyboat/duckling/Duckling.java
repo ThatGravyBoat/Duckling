@@ -1,19 +1,15 @@
 package tech.thatgravyboat.duckling;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import software.bernie.geckolib3.GeckoLib;
 import tech.thatgravyboat.duckling.common.entity.DuckEntity;
 import tech.thatgravyboat.duckling.common.entity.QuacklingEntity;
-import tech.thatgravyboat.duckling.common.registry.*;
-import tech.thatgravyboat.duckling.platform.CommonServices;
+import tech.thatgravyboat.duckling.common.registry.ModEntities;
+import tech.thatgravyboat.duckling.common.registry.ModItems;
+import tech.thatgravyboat.duckling.common.registry.ModSounds;
 
 import java.util.Map;
 
@@ -30,12 +26,12 @@ public class Duckling {
     public static void lateInit() {
     }
 
-    public static void addEntityAttributes(Map<EntityType<? extends LivingEntity>, DefaultAttributeContainer.Builder> attributes) {
+    public static void addEntityAttributes(Map<EntityType<? extends LivingEntity>, AttributeSupplier.Builder> attributes) {
         attributes.put(ModEntities.DUCK.get(), DuckEntity.createDuckAttributes());
         attributes.put(ModEntities.QUACKLING.get(), QuacklingEntity.createQuacklingAttributes());
     }
 
-    public static Identifier modId(String path) {
-        return new Identifier(MODID, path);
+    public static ResourceLocation modId(String path) {
+        return new ResourceLocation(MODID, path);
     }
 }

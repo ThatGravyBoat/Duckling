@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_spawns",
+  "biomes": "#forge:is_swamp",
+  "spawners" : {
+    "type": "duckling:quackling",
+    "weight": 1,
+    "minCount": 0,
+    "maxCount": 1
+  }
+}

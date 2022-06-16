@@ -1,14 +1,14 @@
 package tech.thatgravyboat.duckling.platform;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.biome.Biome;
 
 import java.util.function.Predicate;
 
-public record SpawnData(EntityType<?> entityType, SpawnGroup group, int weight, int min, int max, Predicate<Biome.Precipitation> shouldSpawn) {
+public record SpawnData(EntityType<?> entityType, MobCategory group, int weight, int min, int max, Predicate<Biome.Precipitation> shouldSpawn) {
 
-    public SpawnData(EntityType<?> entityType, SpawnGroup group, int weight, int min, int max) {
+    public SpawnData(EntityType<?> entityType, MobCategory group, int weight, int min, int max) {
         this(entityType, group, weight, min, max, b -> true);
     }
 

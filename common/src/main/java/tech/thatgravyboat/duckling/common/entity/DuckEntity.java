@@ -1,32 +1,31 @@
 package tech.thatgravyboat.duckling.common.entity;
 
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.ai.pathing.PathNodeType;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.World;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -40,64 +39,64 @@ import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 import tech.thatgravyboat.duckling.common.registry.ModSounds;
 
-public class DuckEntity extends TameableEntity implements IAnimatable {
+public class DuckEntity extends TamableAnimal implements IAnimatable {
 
-    public static final Ingredient BREEDING_INGREDIENT = Ingredient.ofItems(Items.BREAD);
-    private static final TrackedData<DuckVariant> VARIANT = DataTracker.registerData(DuckEntity.class, ModEntities.DUCK_VARIANT);
+    public static final Ingredient BREEDING_INGREDIENT = Ingredient.of(Items.BREAD);
+    private static final EntityDataAccessor<Byte> VARIANT = SynchedEntityData.defineId(DuckEntity.class, EntityDataSerializers.BYTE);
 
     private final AnimationFactory factory = new AnimationFactory(this);
     public int eggLayTime;
 
-    public DuckEntity(EntityType<DuckEntity> entityType, World world) {
-        super(entityType, world);
+    public DuckEntity(EntityType<DuckEntity> entityType, Level level) {
+        super(entityType, level);
         this.eggLayTime = this.random.nextInt(6000) + 6000;
-        this.setPathfindingPenalty(PathNodeType.WATER, 0.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
     }
 
-    public static DefaultAttributeContainer.Builder createDuckAttributes() {
-        return MobEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25)
-                .add(EntityAttributes.GENERIC_MAX_HEALTH, 4);
+    public static AttributeSupplier.Builder createDuckAttributes() {
+        return Mob.createMobAttributes()
+                .add(Attributes.MOVEMENT_SPEED, 0.25)
+                .add(Attributes.MAX_HEALTH, 4);
     }
 
     @Override
-    public ActionResult interactMob(PlayerEntity player, Hand hand) {
-        var stackInHand = player.getStackInHand(hand);
-        if (stackInHand.isOf(ModItems.HOLIDAY_FRUIT_CAKE.get()) && this.isAlive() && this.getHealth() < this.getMaxHealth()) {
+    public InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
+        var stackInHand = player.getItemInHand(hand);
+        if (stackInHand.is(ModItems.HOLIDAY_FRUIT_CAKE.get()) && this.isAlive() && this.getHealth() < this.getMaxHealth()) {
             this.heal(1);
-            stackInHand.decrement(1);
-            this.world.addParticle(ParticleTypes.HEART, this.getParticleX(1.0D), this.getRandomBodyY() + 0.5D, this.getParticleZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
-            return ActionResult.success(player.world.isClient);
+            stackInHand.shrink(1);
+            this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+            return InteractionResult.sidedSuccess(player.level.isClientSide());
         }
         if (stackInHand.isEmpty() && this.isAlive()) {
-            this.world.addParticle(ParticleTypes.HEART, this.getParticleX(1.0D), this.getRandomBodyY() + 0.5D, this.getParticleZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
-            return ActionResult.success(player.world.isClient);
+            this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+            return InteractionResult.sidedSuccess(player.level.isClientSide());
         }
-        return super.interactMob(player, hand);
+        return super.mobInteract(player, hand);
     }
 
     @Override
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.getDataTracker().startTracking(VARIANT, DuckVariant.PEKIN);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(VARIANT, (byte)1);
     }
 
     @Override
-    protected void initGoals() {
-        this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(1, new EscapeDangerGoal(this, 1.4D));
-        this.goalSelector.add(2, new AnimalMateGoal(this, 1.0D));
-        this.goalSelector.add(3, new TemptGoal(this, 1.0D, BREEDING_INGREDIENT, false));
-        this.goalSelector.add(4, new FollowParentGoal(this, 1.1D));
-        this.goalSelector.add(5, new WanderAroundFarGoal(this, 1.0D));
-        this.goalSelector.add(6, new LookAtEntityGoal(this, PlayerEntity.class, 6.0F));
-        this.goalSelector.add(7, new LookAroundGoal(this));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new PanicGoal(this, 1.4D));
+        this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D));
+        this.goalSelector.addGoal(3, new TemptGoal(this, 1.0D, BREEDING_INGREDIENT, false));
+        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.1D));
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
 
     @Override
-    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
-        var initialize = super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
-        this.getDataTracker().set(VARIANT, world.getRandom().nextBoolean() ? DuckVariant.MALLARD : DuckVariant.PEKIN);
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor world, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
+        var initialize = super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
+        this.getEntityData().set(VARIANT, world.getRandom().nextBoolean() ? DuckVariant.MALLARD.id : DuckVariant.PEKIN.id);
         return initialize;
     }
 
@@ -115,52 +114,54 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
 
     @Nullable
     @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
+    protected SoundEvent getHurtSound(@NotNull DamageSource source) {
         return ModSounds.DUCK_DEATH.get();
     }
 
     @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
-        this.getDataTracker().set(VARIANT, DuckVariant.getVariant(nbt.getString("Variant")));
+    public void readAdditionalSaveData(@NotNull CompoundTag nbt) {
+        super.readAdditionalSaveData(nbt);
+        this.getEntityData().set(VARIANT, DuckVariant.getVariant(nbt.getString("Variant")).id);
         if (nbt.contains("EggLayTime")) {
             this.eggLayTime = nbt.getInt("EggLayTime");
         }
     }
 
     @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-        nbt.putString("Variant", this.getDataTracker().get(VARIANT).name());
+    public void addAdditionalSaveData(@NotNull CompoundTag nbt) {
+        super.addAdditionalSaveData(nbt);
+        nbt.putString("Variant", getVariant().name());
         nbt.putInt("EggLayTime", this.eggLayTime);
+        //Note this is for the advancement do not remove!
+        nbt.putBoolean("AgentD", getTexture().equals(DuckVariant.AGENTD));
     }
 
     @Override
-    public void tickMovement() {
-        super.tickMovement();
-        Vec3d vec3d = this.getVelocity();
+    public void aiStep() {
+        super.aiStep();
+        Vec3 vec3d = this.getDeltaMovement();
         if (!this.onGround && vec3d.y < 0.0D) {
-            this.setVelocity(vec3d.multiply(1.0D, 0.8D, 1.0D));
+            this.setDeltaMovement(vec3d.multiply(1.0D, 0.8D, 1.0D));
         }
-        if (!this.world.isClient && this.isAlive() && !this.isBaby() && --this.eggLayTime <= 0) {
-            this.playSound(SoundEvents.ENTITY_CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-            this.dropItem(ModItems.DUCK_EGG.get());
+        if (!this.level.isClientSide() && this.isAlive() && !this.isBaby() && --this.eggLayTime <= 0) {
+            this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+            this.spawnAtLocation(ModItems.DUCK_EGG.get());
             this.eggLayTime = this.random.nextInt(6000) + 6000;
         }
     }
 
     @Override
-    public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
+    public boolean causeFallDamage(float fallDistance, float damageMultiplier, @NotNull DamageSource damageSource) {
         return false;
     }
 
     @Nullable
     @Override
-    public PassiveEntity createChild(ServerWorld world, PassiveEntity entity) {
-        var duckEntity = ModEntities.DUCK.get().create(world);
+    public DuckEntity getBreedOffspring(@NotNull ServerLevel world, @NotNull AgeableMob entity) {
+        DuckEntity duckEntity = ModEntities.DUCK.get().create(world);
         DuckVariant variant = null;
-        if (entity instanceof DuckEntity duck && duckEntity != null) {
-            var texture = this.getTexture();
+        if (entity instanceof DuckEntity duck) {
+            DuckVariant texture = this.getTexture();
             if (duck.getTexture() == texture && texture != DuckVariant.AGENTD) {
                 variant = texture;
             }
@@ -169,23 +170,27 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
             if (variant == null) {
                 variant = world.random.nextBoolean() ? DuckVariant.PEKIN : DuckVariant.MALLARD;
             }
-            duckEntity.getDataTracker().set(VARIANT, variant);
+            duckEntity.getEntityData().set(VARIANT, variant.id);
         }
         return duckEntity;
     }
 
     @Override
-    protected float getActiveEyeHeight(EntityPose pose, EntityDimensions dimensions) {
+    protected float getStandingEyeHeight(@NotNull Pose pose, @NotNull EntityDimensions dimensions) {
         return this.isBaby() ? dimensions.height * 0.85F : dimensions.height * 0.92F;
     }
 
+    public DuckVariant getVariant() {
+        return DuckVariant.getVariant(this.entityData.get(VARIANT));
+    }
+
     public DuckVariant getTexture() {
-        return this.getName().asString().equalsIgnoreCase("agent d") ? DuckVariant.AGENTD : this.getDataTracker().get(VARIANT);
+        return this.getName().getString().equalsIgnoreCase("agent d") ? DuckVariant.AGENTD : getVariant();
     }
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        var builder = new AnimationBuilder();
-        if (this.world.getFluidState(getBlockPos().down()).isIn(FluidTags.WATER)) {
+        AnimationBuilder builder = new AnimationBuilder();
+        if (this.level.getFluidState(blockPosition().below()).is(FluidTags.WATER)) {
             builder.addAnimation("walking", true);
         } else if (!this.onGround) {
             builder.addAnimation("falling", true);
@@ -199,7 +204,7 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
     }
 
     @Override
-    public boolean isBreedingItem(ItemStack stack) {
+    public boolean isFood(@NotNull ItemStack stack) {
         return BREEDING_INGREDIENT.test(stack);
     }
 

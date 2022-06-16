@@ -1,14 +1,14 @@
 package tech.thatgravyboat.duckling.common.items;
 
-import net.minecraft.item.FoodComponent;
-import net.minecraft.item.Item;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
 
 public class HolidayFruitCakeItem extends Item {
 
     //Kinda fruity
-    private static final FoodComponent FOOD = new FoodComponent.Builder().hunger(3).saturationModifier(1).build();
+    private static final FoodProperties FOOD = new FoodProperties.Builder().nutrition(3).saturationMod(1).build();
 
-    public HolidayFruitCakeItem(Settings settings) {
+    public HolidayFruitCakeItem(Properties settings) {
         super(settings.food(FOOD));
     }
 }
