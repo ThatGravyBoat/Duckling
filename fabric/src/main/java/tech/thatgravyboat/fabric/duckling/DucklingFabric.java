@@ -20,10 +20,6 @@ public class DucklingFabric implements ModInitializer {
     public void onInitialize() {
         Duckling.init();
 
-        FabricRegistryService.ITEMS.forEach((id, item) -> Registry.register(Registry.ITEM, modId(id), item.get()));
-        FabricRegistryService.ENTITIES.forEach((id, item) -> Registry.register(Registry.ENTITY_TYPE, modId(id), item.get()));
-        FabricRegistryService.SOUNDS.forEach((id, item) -> Registry.register(Registry.SOUND_EVENT, modId(id), item.get()));
-
         Map<EntityType<? extends LivingEntity>, AttributeSupplier.Builder> attributes = new HashMap<>();
         Duckling.addEntityAttributes(attributes);
         attributes.forEach(FabricDefaultAttributeRegistry::register);

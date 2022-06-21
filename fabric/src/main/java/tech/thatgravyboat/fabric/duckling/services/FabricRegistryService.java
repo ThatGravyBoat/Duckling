@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.mixin.object.builder.SpawnRestrictionAccessor;
+import net.minecraft.core.Registry;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.*;
@@ -14,42 +15,34 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import tech.thatgravyboat.duckling.platform.SpawnData;
 import tech.thatgravyboat.duckling.platform.services.IRegistryHelper;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.function.Supplier;
+
+import static tech.thatgravyboat.duckling.Duckling.modId;
 
 public class FabricRegistryService implements IRegistryHelper {
 
-    public static final Map<String, Supplier<Item>> ITEMS = new LinkedHashMap<>();
-    public static final Map<String, Supplier<EntityType<?>>> ENTITIES = new LinkedHashMap<>();
-    public static final Map<String, Supplier<SoundEvent>> SOUNDS = new LinkedHashMap<>();
-
     @Override
     public <T extends Item> Supplier<T> registerItem(String id, Supplier<T> item) {
-        var object = item.get();
-        ITEMS.put(id, () -> object);
+        var object = Registry.register(Registry.ITEM, modId(id), item.get());
         return () -> object;
     }
 
     @Override
     public <T extends Mob> Supplier<SpawnEggItem> registerSpawnEgg(String id, Supplier<EntityType<T>> entity, int primaryColor, int secondaryColor, Item.Properties settings) {
-        var object = new SpawnEggItem(entity.get(), primaryColor, secondaryColor, settings);
-        ITEMS.put(id, () -> object);
+        var object = Registry.register(Registry.ITEM, modId(id), new SpawnEggItem(entity.get(), primaryColor, secondaryColor, settings));
         return () -> object;
     }
 
 
     @Override
     public <T extends Entity> Supplier<EntityType<T>> registerEntity(String id, EntityType.EntityFactory<T> factory, MobCategory group, float height, float width) {
-        var object = FabricEntityTypeBuilder.create(group, factory).dimensions(EntityDimensions.scalable(width, height)).build();
-        ENTITIES.put(id, () -> object);
+        var object = Registry.register(Registry.ENTITY_TYPE, modId(id), FabricEntityTypeBuilder.create(group, factory).dimensions(EntityDimensions.scalable(width, height)).build());
         return () -> object;
     }
 
     @Override
     public Supplier<SoundEvent> registerSound(String id, Supplier<SoundEvent> sound) {
-        var object = sound.get();
-        SOUNDS.put(id, sound);
+        var object = Registry.register(Registry.SOUND_EVENT, modId(id), sound.get());
         return () -> object;
     }
 
