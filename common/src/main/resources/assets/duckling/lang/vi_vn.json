@@ -1,0 +1,29 @@
+{
+  "item.duckling.duck_spawn_egg": "Trứng sinh ra Vịt",
+  "item.duckling.quackling_spawn_egg": "Trứng sinh ra Quạc Quạc",
+  "item.duckling.duck_egg": "Trứng vịt",
+  "item.duckling.holiday_fruit_cake": "Bánh trái cây ngày lễ",
+  "entity.duckling.duck": "Vịt",
+  "entity.duckling.quackling": "Quạc Quạc",
+  "entity.duckling.duck_egg": "Trứng vịt",
+
+  "subtitles.duckling.quack": "Vịt kêu quạc quạc",
+  "subtitles.duckling.deep_quack": "Quackling Quacking",
+  "subtitles.duckling.duck_death": "Duck Hurt",
+  "subtitles.duckling.quackling_death": "Quackling Hurt",
+
+  "advancements.duckling.agent_d.title": "Điệp viên siêu bí mật",
+  "advancements.duckling.agent_d.description": "Xoa đầu siêu điệp viên D!",
+
+  "advancements.duckling.breed_duck.title": "Nhìn những con gà đó mà xem!",
+  "advancements.duckling.breed_duck.description": "Phối giống hai con vịt.",
+
+  "advancements.duckling.fishing_rod.title": "Kinh doanh Quạc Quạc",
+  "advancements.duckling.fishing_rod.description": "Đưa cần câu cho Quạc Quạc",
+
+  "advancements.duckling.holiday_fruit_cake.title": "Kinda Fruity",
+  "advancements.duckling.holiday_fruit_cake.description": "Có được một chiếc bánh trái cây ngày lễ.",
+
+  "advancements.duckling.pet_duck.title": "Có quá nhiều sự cute ở đây",
+  "advancements.duckling.pet_duck.description": "Xoa đầu một con vịt."
+}
