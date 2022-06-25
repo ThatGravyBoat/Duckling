@@ -1,0 +1,29 @@
+{
+  "item.duckling.duck_spawn_egg": "오리 생성 알",
+  "item.duckling.quackling_spawn_egg": "꽥꽥이 생성 알",
+  "item.duckling.duck_egg": "오리 알",
+  "item.duckling.holiday_fruit_cake": "홀리데이 과일 케이크",
+  "entity.duckling.duck": "오리",
+  "entity.duckling.quackling": "꽥꽥이",
+  "entity.duckling.duck_egg": "오리 알",
+
+  "subtitles.duckling.quack": "오리가 꽥꽥거림",
+  "subtitles.duckling.deep_quack": "꽥꽥이가 꽥꽥거림",
+  "subtitles.duckling.duck_death": "오리가 상처를 입음",
+  "subtitles.duckling.quackling_death": "꽥꽥이가 상처를 입음",
+
+  "advancements.duckling.agent_d.title": "매우 비밀스러운 스파이",
+  "advancements.duckling.agent_d.description": "반려동물 요원 D는 매우 비밀스러운 스파이입니다!",
+
+  "advancements.duckling.breed_duck.title": "저 닭들 좀 봐!",
+  "advancements.duckling.breed_duck.description": "두 마리의 오리를 교배시키세요",
+
+  "advancements.duckling.fishing_rod.title": "엉뚱한 사업",
+  "advancements.duckling.fishing_rod.description": "꽥꽥이에게 낚싯대를 주세요",
+
+  "advancements.duckling.holiday_fruit_cake.title": "Kinda Fruity",
+  "advancements.duckling.holiday_fruit_cake.description": "홀리데이 과일 케이크를 만드세요",
+
+  "advancements.duckling.pet_duck.title": "귀여움 과부화",
+  "advancements.duckling.pet_duck.description": "오리를 쓰다듬으세요"
+}
