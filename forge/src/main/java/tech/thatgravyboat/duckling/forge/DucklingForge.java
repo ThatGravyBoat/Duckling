@@ -1,4 +1,4 @@
-package tech.thatgravyboat.forge.duckling;
+package tech.thatgravyboat.duckling.forge;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,7 +13,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import tech.thatgravyboat.duckling.Duckling;
 import tech.thatgravyboat.duckling.common.registry.ModSpawns;
-import tech.thatgravyboat.forge.duckling.services.ForgeRegistryService;
+import tech.thatgravyboat.duckling.common.registry.forge.ModEntitiesImpl;
+import tech.thatgravyboat.duckling.common.registry.forge.ModItemsImpl;
+import tech.thatgravyboat.duckling.common.registry.forge.ModSoundsImpl;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,9 +30,9 @@ public class DucklingForge {
         bus.addListener(DucklingForge::addEntityAttributes);
         bus.addListener(this::onComplete);
 
-        ForgeRegistryService.ITEMS.register(bus);
-        ForgeRegistryService.ENTITIES.register(bus);
-        ForgeRegistryService.SOUNDS.register(bus);
+        ModItemsImpl.ITEMS.register(bus);
+        ModEntitiesImpl.ENTITIES.register(bus);
+        ModSoundsImpl.SOUNDS.register(bus);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> DucklingForgeClient::init);
         MinecraftForge.EVENT_BUS.register(this);

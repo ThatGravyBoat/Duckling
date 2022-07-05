@@ -10,17 +10,17 @@
   ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/duckling",
-    "sources": "https://github.com/Toadstool-Studios/duckling"
+    "sources": "https://github.com/ThatGravyBoat/duckling"
   },
   "license": "All Rights Reserved",
   "icon": "assets/duckling/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "tech.thatgravyboat.fabric.duckling.DucklingFabric"
+      "tech.thatgravyboat.duckling.fabric.DucklingFabric"
     ],
     "client": [
-      "tech.thatgravyboat.fabric.duckling.DucklingFabricClient"
+      "tech.thatgravyboat.duckling.fabric.DucklingFabricClient"
     ]
   },
   "depends": {

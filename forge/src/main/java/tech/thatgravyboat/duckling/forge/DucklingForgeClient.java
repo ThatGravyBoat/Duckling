@@ -1,4 +1,4 @@
-package tech.thatgravyboat.forge.duckling;
+package tech.thatgravyboat.duckling.forge;
 
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;

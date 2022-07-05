@@ -23,7 +23,7 @@ public class QuacklingRenderer extends GeoEntityRenderer<QuacklingEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(@NotNull QuacklingEntity entity) {
-        return getTextureResource(entity);
+        return this.modelProvider.getTextureResource(entity);
     }
 
     private ItemStack fishingRod;
