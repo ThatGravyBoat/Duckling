@@ -13,6 +13,8 @@ public class QuacklingModel extends AnimatedGeoModel<QuacklingEntity> {
 
     @Override
     public ResourceLocation getTextureResource(QuacklingEntity object) {
+        var string = object.getName().getString();
+        if (string.equalsIgnoreCase("haley") || string.equalsIgnoreCase("maid")) return Duckling.modId("textures/entity/maid_quackling.png");
         return object.isDripped() ? Duckling.modId("textures/entity/dripped_out_quackling.png") : Duckling.modId("textures/entity/quackling.png");
     }
 

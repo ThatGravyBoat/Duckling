@@ -15,7 +15,7 @@ public class ModEntities {
     public static final Supplier<EntityType<DuckEntity>> DUCK = registerEntity("duck",
             DuckEntity::new, MobCategory.WATER_AMBIENT, 0.7F, 0.6F);
     public static final Supplier<EntityType<QuacklingEntity>> QUACKLING = registerEntity("quackling",
-            QuacklingEntity::new, MobCategory.CREATURE, 1.5f, 0.75f);
+            QuacklingEntity::new, MobCategory.CREATURE, 0.75f, 1.5f);
     public static final Supplier<EntityType<DuckEggEntity>> DUCK_EGG = registerEntity("duck_egg",
             DuckEggEntity::new, MobCategory.MISC, 0.25f, 0.25f);
 
