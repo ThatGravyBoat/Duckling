@@ -12,7 +12,7 @@ public class FabricSpawns {
     public static void addSpawns() {
         BiomeModifications.addSpawn(BiomeSelectors.tag(BiomeTags.IS_RIVER).and(ctx -> !ctx.getBiome().getPrecipitation().equals(Biome.Precipitation.SNOW)),
                 MobCategory.WATER_AMBIENT, ModEntities.DUCK.get(), 5, 3, 4);
-        BiomeModifications.addSpawn(BiomeSelectors.tag(BiomeTags.IS_RIVER),
+        BiomeModifications.addSpawn(BiomeSelectors.tag(BiomeTags.HAS_SWAMP_HUT),
                 MobCategory.CREATURE, ModEntities.QUACKLING.get(), 1, 0, 1);
     }
 }

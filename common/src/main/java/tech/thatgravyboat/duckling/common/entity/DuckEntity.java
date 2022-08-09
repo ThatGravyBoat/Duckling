@@ -1,5 +1,6 @@
 package tech.thatgravyboat.duckling.common.entity;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -9,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -22,7 +24,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +55,11 @@ public class DuckEntity extends TamableAnimal implements IAnimatable {
         super(entityType, level);
         this.eggLayTime = this.random.nextInt(6000) + 6000;
         this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+    }
+
+    public static boolean canDuckSpawn(EntityType<DuckEntity> entity, LevelAccessor level, MobSpawnType type, BlockPos pos, RandomSource random) {
+        if (type == MobSpawnType.SPAWNER) return true;
+        return (level.isEmptyBlock(pos.above()) || level.isEmptyBlock(pos)) && level.getFluidState(pos.below()).is(Fluids.WATER);
     }
 
     public static AttributeSupplier.Builder createDuckAttributes() {
