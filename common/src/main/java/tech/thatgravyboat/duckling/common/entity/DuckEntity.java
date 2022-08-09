@@ -8,10 +8,12 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -23,10 +25,12 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -40,10 +44,12 @@ import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 import tech.thatgravyboat.duckling.common.registry.ModSounds;
 
+import java.util.Random;
+
 public class DuckEntity extends TameableEntity implements IAnimatable {
 
     public static final Ingredient BREEDING_INGREDIENT = Ingredient.ofItems(Items.BREAD);
-    private static final TrackedData<DuckVariant> VARIANT = DataTracker.registerData(DuckEntity.class, ModEntities.DUCK_VARIANT);
+    private static final TrackedData<Byte> VARIANT = DataTracker.registerData(DuckEntity.class, TrackedDataHandlerRegistry.BYTE);
 
     private final AnimationFactory factory = new AnimationFactory(this);
     public int eggLayTime;
@@ -52,6 +58,11 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
         super(entityType, world);
         this.eggLayTime = this.random.nextInt(6000) + 6000;
         this.setPathfindingPenalty(PathNodeType.WATER, 0.0F);
+    }
+
+    public static boolean canDuckSpawn(EntityType<DuckEntity> entity, WorldAccess level, SpawnReason type, BlockPos pos, Random random) {
+        if (type == SpawnReason.SPAWNER) return true;
+        return (level.isAir(pos.up()) || level.isAir(pos)) && level.getFluidState(pos.down()).isOf(Fluids.WATER);
     }
 
     public static DefaultAttributeContainer.Builder createDuckAttributes() {
@@ -79,7 +90,7 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
     @Override
     protected void initDataTracker() {
         super.initDataTracker();
-        this.getDataTracker().startTracking(VARIANT, DuckVariant.PEKIN);
+        this.getDataTracker().startTracking(VARIANT, (byte)1);
     }
 
     @Override
@@ -97,7 +108,7 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
     @Override
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt) {
         var initialize = super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
-        this.getDataTracker().set(VARIANT, world.getRandom().nextBoolean() ? DuckVariant.MALLARD : DuckVariant.PEKIN);
+        this.getDataTracker().set(VARIANT, world.getRandom().nextBoolean() ? DuckVariant.MALLARD.id : DuckVariant.PEKIN.id);
         return initialize;
     }
 
@@ -122,7 +133,7 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-        this.getDataTracker().set(VARIANT, DuckVariant.getVariant(nbt.getString("Variant")));
+        this.getDataTracker().set(VARIANT, DuckVariant.getVariant(nbt.getString("Variant")).id);
         if (nbt.contains("EggLayTime")) {
             this.eggLayTime = nbt.getInt("EggLayTime");
         }
@@ -131,7 +142,7 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-        nbt.putString("Variant", this.getDataTracker().get(VARIANT).name());
+        nbt.putString("Variant", DuckVariant.getVariant(this.getDataTracker().get(VARIANT)).name());
         nbt.putInt("EggLayTime", this.eggLayTime);
     }
 
@@ -169,7 +180,7 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
             if (variant == null) {
                 variant = world.random.nextBoolean() ? DuckVariant.PEKIN : DuckVariant.MALLARD;
             }
-            duckEntity.getDataTracker().set(VARIANT, variant);
+            duckEntity.getDataTracker().set(VARIANT, variant.id);
         }
         return duckEntity;
     }
@@ -179,8 +190,12 @@ public class DuckEntity extends TameableEntity implements IAnimatable {
         return this.isBaby() ? dimensions.height * 0.85F : dimensions.height * 0.92F;
     }
 
+    public DuckVariant getVariant() {
+        return DuckVariant.getVariant(this.getDataTracker().get(VARIANT));
+    }
+
     public DuckVariant getTexture() {
-        return this.getName().asString().equalsIgnoreCase("agent d") ? DuckVariant.AGENTD : this.getDataTracker().get(VARIANT);
+        return this.getName().asString().equalsIgnoreCase("agent d") ? DuckVariant.AGENTD : getVariant();
     }
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {

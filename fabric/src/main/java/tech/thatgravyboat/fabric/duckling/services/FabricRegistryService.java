@@ -4,9 +4,6 @@ import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.mixin.object.builder.SpawnRestrictionAccessor;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.advancement.criterion.Criterion;
-import net.minecraft.advancement.criterion.CriterionConditions;
 import net.minecraft.entity.*;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.Item;
@@ -44,7 +41,7 @@ public class FabricRegistryService implements IRegistryHelper {
 
     @Override
     public <T extends Entity> Supplier<EntityType<T>> registerEntity(String id, EntityType.EntityFactory<T> factory, SpawnGroup group, float height, float width) {
-        var object = FabricEntityTypeBuilder.create(group, factory).dimensions(EntityDimensions.fixed(width, height)).build();
+        var object = FabricEntityTypeBuilder.create(group, factory).dimensions(EntityDimensions.changing(width, height)).build();
         ENTITIES.put(id, () -> object);
         return () -> object;
     }
