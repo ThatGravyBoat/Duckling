@@ -3,6 +3,15 @@ description: File a bug report
 title: "[Bug]: "
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        If this is about about mob spawns check your worldgen or mob spawn mods first.
+        Note: Ducks are part of the water ambient category which has a max of 20 where in vanilla has a salmon are apart of this category too.
+        Due to this ducks also have a 50% chance of spawning but is reduced by vanilla due to a feature called reduced water ambient mobs tag.
+        If you are experiencing this is more likely the other mods as salmons have more a chance of spawning that ducks due to salmon spawning up to 5
+        while ducks only have up to 3. This is not a bug but a feature.
+
   - type: textarea
     id: bug
     attributes:
@@ -68,3 +77,12 @@ body:
     attributes:
       label: Logs or additional context
       description: Please copy and paste any relevant log output into a paste website such as [Pastebin](https://pastebin.com) and then link them here. You may also give any additional information here too.
+
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Acknowledgement
+      description: By submitting this issue, you agree that you read the terms at the top of the page.
+      options:
+        - label: I agree that I read the terms at the top of the page.
+          required: true
