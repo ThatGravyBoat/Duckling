@@ -1,0 +1,31 @@
+{
+	"item.duckling.duck_spawn_egg": "Ovo de desova de pato",
+	"item.duckling.quackling_spawn_egg": "Ovo de desova charlatão",
+	"item.duckling.duck_egg": "Ovo de pato",
+	"item.duckling.holiday_fruit_cake": "Bolo de fruta de férias",
+	"item.duckling.raw_duck": "Carne de pato cru",
+	"item.duckling.cooked_duck": "Carne de pato cozido",
+	"entity.duckling.duck": "Pata",
+	"entity.duckling.quackling": "Charlatão",
+	"entity.duckling.duck_egg": "Ovo de pato",
+  
+	"subtitles.duckling.quack": "Pato charlatão",
+	"subtitles.duckling.deep_quack": "Charlatão charlatão",
+	"subtitles.duckling.duck_death": "Pato doeu",
+	"subtitles.duckling.quackling_death": "Charlating machucado",
+  
+	"advancements.duckling.agent_d.title": "Espio super secreto",
+	"advancements.duckling.agent_d.description": "Agente de animais de estimação D o super secreto espião!",
+  
+	"advancements.duckling.breed_duck.title": "Olhe para todas aquelas galinhas!",
+	"advancements.duckling.breed_duck.description": "Raça dois patos.",
+  
+	"advancements.duckling.fishing_rod.title": "Negócio Quacky",
+	"advancements.duckling.fishing_rod.description": "Dê uma vara de pesca a um charlatão",
+  
+	"advancements.duckling.holiday_fruit_cake.title": "Meio que frutado",
+	"advancements.duckling.holiday_fruit_cake.description": "Obtenha um bolo de frutas de férias.",
+  
+	"advancements.duckling.pet_duck.title": "Excesso de fofura",
+	"advancements.duckling.pet_duck.description": "Animal de estimação um pato."
+  }
