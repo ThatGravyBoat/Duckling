@@ -16,12 +16,16 @@ import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 
 public class DuckEggEntity extends ThrowableItemProjectile {
-    public DuckEggEntity(EntityType<? extends DuckEggEntity> entityType, Level world) {
-        super(entityType, world);
+    public DuckEggEntity(EntityType<? extends DuckEggEntity> entityType, Level level) {
+        super(entityType, level);
     }
 
-    public DuckEggEntity(Level world, LivingEntity owner) {
-        super(ModEntities.DUCK_EGG.get(), owner, world);
+    public DuckEggEntity(Level level, LivingEntity owner) {
+        super(ModEntities.DUCK_EGG.get(), owner, level);
+    }
+
+    public DuckEggEntity(Level level, double d, double e, double f) {
+        super(ModEntities.DUCK_EGG.get(), d, e, f, level);
     }
 
     @Override

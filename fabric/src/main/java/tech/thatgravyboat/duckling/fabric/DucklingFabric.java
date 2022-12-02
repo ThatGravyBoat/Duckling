@@ -22,5 +22,7 @@ public class DucklingFabric implements ModInitializer {
 
         ModSpawns.addSpawnRules();
         FabricSpawns.addSpawns();
+
+        Duckling.lateInit();
     }
 }

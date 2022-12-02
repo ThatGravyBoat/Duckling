@@ -5,6 +5,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.block.Block;
 
 import java.util.function.Supplier;
 
@@ -19,6 +20,11 @@ public class ModItemsImpl {
 
     public static <T extends Mob> Supplier<SpawnEggItem> registerSpawnEgg(String id, Supplier<EntityType<T>> entity, int primaryColor, int secondaryColor, Item.Properties settings) {
         var object = Registry.register(Registry.ITEM, modId(id), new SpawnEggItem(entity.get(), primaryColor, secondaryColor, settings));
+        return () -> object;
+    }
+
+    public static Supplier<Block> registerBlock(String id, Supplier<Block> supplier) {
+        var object = Registry.register(Registry.BLOCK, modId(id), supplier.get());
         return () -> object;
     }
 }

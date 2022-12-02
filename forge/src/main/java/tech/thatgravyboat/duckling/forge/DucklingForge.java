@@ -9,6 +9,7 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import tech.thatgravyboat.duckling.Duckling;
@@ -29,7 +30,9 @@ public class DucklingForge {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(DucklingForge::addEntityAttributes);
         bus.addListener(this::onComplete);
+        bus.addListener(this::setup);
 
+        ModItemsImpl.BLOCKS.register(bus);
         ModItemsImpl.ITEMS.register(bus);
         ModEntitiesImpl.ENTITIES.register(bus);
         ModSoundsImpl.SOUNDS.register(bus);
@@ -40,6 +43,10 @@ public class DucklingForge {
 
     public void onComplete(FMLLoadCompleteEvent event) {
         ModSpawns.addSpawnRules();
+    }
+
+    public void setup(FMLCommonSetupEvent event) {
+        Duckling.lateInit();
     }
 
     public static void addEntityAttributes(EntityAttributeCreationEvent event) {
