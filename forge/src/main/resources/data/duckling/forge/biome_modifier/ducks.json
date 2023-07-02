@@ -5,7 +5,7 @@
   ],
   "spawners" : {
     "type": "duckling:duck",
-    "weight": 5,
+    "weight": 3,
     "minCount": 3,
     "maxCount": 4
   }

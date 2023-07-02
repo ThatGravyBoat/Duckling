@@ -30,20 +30,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import tech.thatgravyboat.duckling.common.constants.AnimationConstants;
 import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 import tech.thatgravyboat.duckling.common.registry.ModSounds;
 
 import java.util.EnumSet;
 
-public class QuacklingEntity extends AbstractVillager implements IAnimatable {
+public class QuacklingEntity extends AbstractVillager implements GeoEntity {
 
     private static final VillagerTrades.ItemListing HOLIDAY_CAKE = (entity, random) -> new MerchantOffer(new ItemStack(Items.EMERALD, 3), new ItemStack(ModItems.HOLIDAY_FRUIT_CAKE.get(), 3), 12, 10, 0.05F);
 
@@ -51,7 +53,7 @@ public class QuacklingEntity extends AbstractVillager implements IAnimatable {
     private static final EntityDataAccessor<Boolean> DRIPPED = SynchedEntityData.defineId(QuacklingEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<ItemStack> FISHING_ROD = SynchedEntityData.defineId(QuacklingEntity.class, EntityDataSerializers.ITEM_STACK);
 
-    private final AnimationFactory factory = new AnimationFactory(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public QuacklingEntity(EntityType<? extends AbstractVillager> entityType, Level world) {
         super(entityType, world);
@@ -121,13 +123,13 @@ public class QuacklingEntity extends AbstractVillager implements IAnimatable {
     }
 
     @Override
-    public SoundEvent getNotifyTradeSound() {
-        return getAmbientSound();
+    public @NotNull SoundEvent getNotifyTradeSound() {
+        return ModSounds.DEEP_QUACK.get();
     }
 
     @Override
-    protected SoundEvent getTradeUpdatedSound(boolean sold) {
-        return getAmbientSound();
+    protected @NotNull SoundEvent getTradeUpdatedSound(boolean sold) {
+        return ModSounds.DEEP_QUACK.get();
     }
 
     @Override
@@ -143,14 +145,14 @@ public class QuacklingEntity extends AbstractVillager implements IAnimatable {
                 spawnAtLocation(stack);
                 getEntityData().set(FISHING_ROD, ItemStack.EMPTY);
             }
-            this.level.broadcastEntityEvent(this, (byte) 13);
+            this.level().broadcastEntityEvent(this, (byte) 13);
         }
         return super.hurt(source, amount);
     }
 
     @Override
     protected void rewardTradeXp(@NotNull MerchantOffer merchantOffer) {
-        this.level.broadcastEntityEvent(this, (byte) 14);
+        this.level().broadcastEntityEvent(this, (byte) 14);
     }
 
     @Override
@@ -189,39 +191,39 @@ public class QuacklingEntity extends AbstractVillager implements IAnimatable {
     }
 
     @Override
-    public InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         if (itemStack.is(Items.FISHING_ROD) && !this.isFishing()) {
             getEntityData().set(FISHING_ROD, itemStack);
             player.setItemInHand(hand, ItemStack.EMPTY);
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return InteractionResult.sidedSuccess(level().isClientSide());
         }
         if (this.isFishing() && itemStack.isEmpty() && player.isShiftKeyDown()) {
             var stack = getEntityData().get(FISHING_ROD).copy();
             getEntityData().set(FISHING_ROD, ItemStack.EMPTY);
             player.setItemInHand(hand, stack);
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
         if (itemStack.is(Items.SHEARS) && isDripped()) {
             setDripped(false);
             spawnAtLocation(Items.BIG_DRIPLEAF);
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return InteractionResult.sidedSuccess(level().isClientSide());
         } else if (this.getHealth() < this.getMaxHealth() && itemStack.is(ModItems.HOLIDAY_FRUIT_CAKE.get()) && this.isAlive()) {
             this.heal(1f);
             itemStack.shrink(1);
-            this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomX(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            this.level().addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomX(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+            return InteractionResult.sidedSuccess(level().isClientSide());
         }else if (!itemStack.is(ModItems.QUACKLING_SPAWN_EGG.get()) && this.isAlive() && !this.isTrading() && !this.isFishing()) {
             if (hand == InteractionHand.MAIN_HAND) {
                 player.awardStat(Stats.TALKED_TO_VILLAGER);
             }
 
-            if (!this.getOffers().isEmpty() && !level.isClientSide()) {
+            if (!this.getOffers().isEmpty() && !level().isClientSide()) {
                 this.setTradingPlayer(player);
                 this.openTradingScreen(player, this.getDisplayName(), 1);
             }
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            return InteractionResult.sidedSuccess(level().isClientSide());
         } else {
             return super.mobInteract(player, hand);
         }
@@ -250,34 +252,31 @@ public class QuacklingEntity extends AbstractVillager implements IAnimatable {
         return ModEntities.QUACKLING.get().create(world);
     }
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        var builder = new AnimationBuilder();
-        if (this.isFishing()) {
-            builder.addAnimation("fishing", true);
-        } else if (event.isMoving()) {
-            builder.addAnimation("walking", true);
-        } else {
-            builder.addAnimation("idle", true);
-        }
-        event.getController().setAnimation(builder);
-        return PlayState.CONTINUE;
-    }
-
     @Override
     public boolean requiresCustomPersistence() {
         return true;
     }
 
-    @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "controller", 10, this::predicate));
+    private <E extends GeoAnimatable> PlayState predicate(AnimationState<E> event) {
+        if (this.isFishing()) {
+            event.getController().setAnimation(AnimationConstants.FISHING);
+        } else if (event.isMoving()) {
+            event.getController().setAnimation(AnimationConstants.WALKING);
+        } else {
+            event.getController().setAnimation(AnimationConstants.IDLE);
+        }
+        return PlayState.CONTINUE;
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return factory;
+    public void registerControllers(AnimatableManager.ControllerRegistrar data) {
+        data.add(new AnimationController<>(this, "controller", 10, this::predicate));
     }
 
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
 
     static class FishingGoal extends Goal {
 

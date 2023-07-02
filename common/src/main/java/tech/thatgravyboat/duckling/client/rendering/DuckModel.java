@@ -1,11 +1,11 @@
 package tech.thatgravyboat.duckling.client.rendering;
 
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 import tech.thatgravyboat.duckling.Duckling;
 import tech.thatgravyboat.duckling.common.entity.DuckEntity;
 
-public class DuckModel extends AnimatedGeoModel<DuckEntity> {
+public class DuckModel extends GeoModel<DuckEntity> {
     @Override
     public ResourceLocation getModelResource(DuckEntity object) {
         return Duckling.modId("geo/duck.geo.json");

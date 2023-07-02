@@ -31,24 +31,26 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import tech.thatgravyboat.duckling.common.constants.AnimationConstants;
 import tech.thatgravyboat.duckling.common.constants.DuckVariant;
 import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 import tech.thatgravyboat.duckling.common.registry.ModSounds;
 
-public class DuckEntity extends TamableAnimal implements IAnimatable {
+public class DuckEntity extends TamableAnimal implements GeoEntity {
 
     public static final Ingredient BREEDING_INGREDIENT = Ingredient.of(Items.BREAD);
     private static final EntityDataAccessor<Byte> VARIANT = SynchedEntityData.defineId(DuckEntity.class, EntityDataSerializers.BYTE);
 
-    private final AnimationFactory factory = new AnimationFactory(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public int eggLayTime;
 
     public DuckEntity(EntityType<DuckEntity> entityType, Level level) {
@@ -69,17 +71,17 @@ public class DuckEntity extends TamableAnimal implements IAnimatable {
     }
 
     @Override
-    public InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
         var stackInHand = player.getItemInHand(hand);
         if (stackInHand.is(ModItems.HOLIDAY_FRUIT_CAKE.get()) && this.isAlive() && this.getHealth() < this.getMaxHealth()) {
             this.heal(1);
             stackInHand.shrink(1);
-            this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
-            return InteractionResult.sidedSuccess(player.level.isClientSide());
+            this.level().addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+            return InteractionResult.sidedSuccess(player.level().isClientSide());
         }
         if (stackInHand.isEmpty() && this.isAlive()) {
-            this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
-            return InteractionResult.sidedSuccess(player.level.isClientSide());
+            this.level().addParticle(ParticleTypes.HEART, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+            return InteractionResult.sidedSuccess(player.level().isClientSide());
         }
         return super.mobInteract(player, hand);
     }
@@ -97,7 +99,7 @@ public class DuckEntity extends TamableAnimal implements IAnimatable {
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0D));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.0D, BREEDING_INGREDIENT, false));
         this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.1D));
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.7D));
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
@@ -149,10 +151,10 @@ public class DuckEntity extends TamableAnimal implements IAnimatable {
     public void aiStep() {
         super.aiStep();
         Vec3 vec3d = this.getDeltaMovement();
-        if (!this.onGround && vec3d.y < 0.0D) {
+        if (!this.onGround() && vec3d.y < 0.0D) {
             this.setDeltaMovement(vec3d.multiply(1.0D, 0.8D, 1.0D));
         }
-        if (!this.level.isClientSide() && this.isAlive() && !this.isBaby() && --this.eggLayTime <= 0) {
+        if (!this.level().isClientSide() && this.isAlive() && !this.isBaby() && --this.eggLayTime <= 0) {
             this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
             this.spawnAtLocation(ModItems.DUCK_EGG.get());
             this.eggLayTime = this.random.nextInt(6000) + 6000;
@@ -197,33 +199,30 @@ public class DuckEntity extends TamableAnimal implements IAnimatable {
         return this.getName().getString().equalsIgnoreCase("agent d") ? DuckVariant.AGENTD : getVariant();
     }
 
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
-        AnimationBuilder builder = new AnimationBuilder();
-        if (this.level.getFluidState(blockPosition().below()).is(FluidTags.WATER)) {
-            builder.addAnimation("walking", true);
-        } else if (!this.onGround) {
-            builder.addAnimation("falling", true);
-        } else if (event.isMoving()) {
-            builder.addAnimation("walking", true);
-        } else {
-            builder.addAnimation("idle", true);
-        }
-        event.getController().setAnimation(builder);
-        return PlayState.CONTINUE;
-    }
-
     @Override
     public boolean isFood(@NotNull ItemStack stack) {
         return BREEDING_INGREDIENT.test(stack);
     }
 
+    private <E extends GeoAnimatable> PlayState predicate(AnimationState<E> event) {
+        if (this.level().getFluidState(blockPosition().below()).is(FluidTags.WATER)) {
+            event.getController().setAnimation(AnimationConstants.WALKING);
+        } else if (!this.onGround()) {
+            event.getController().setAnimation(AnimationConstants.FALLING);
+        } else if (event.isMoving()) {
+            event.getController().setAnimation(AnimationConstants.WALKING);
+        } else {
+            event.getController().setAnimation(AnimationConstants.IDLE);
+        }
+        return PlayState.CONTINUE;
+    }
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "controller", 10, this::predicate));
+    public void registerControllers(AnimatableManager.ControllerRegistrar data) {
+        data.add(new AnimationController<>(this, "controller", 10, this::predicate));
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 }

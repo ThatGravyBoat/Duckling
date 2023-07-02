@@ -1,12 +1,12 @@
 package tech.thatgravyboat.duckling.client.rendering;
 
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 import tech.thatgravyboat.duckling.Duckling;
 import tech.thatgravyboat.duckling.client.DucklingClient;
 import tech.thatgravyboat.duckling.common.entity.QuacklingEntity;
 
-public class QuacklingModel extends AnimatedGeoModel<QuacklingEntity> {
+public class QuacklingModel extends GeoModel<QuacklingEntity> {
     @Override
     public ResourceLocation getModelResource(QuacklingEntity object) {
         if (!isMaid(object) && !object.isDripped() && DucklingClient.isDecember) {

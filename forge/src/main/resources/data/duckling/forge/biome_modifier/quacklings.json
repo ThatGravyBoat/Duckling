@@ -4,7 +4,7 @@
   "spawners" : {
     "type": "duckling:quackling",
     "weight": 1,
-    "minCount": 0,
+    "minCount": 1,
     "maxCount": 1
   }
 }

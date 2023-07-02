@@ -13,7 +13,6 @@ public class DucklingClientImpl {
         EntityRenderers.register(type, factory);
     }
 
-    @SuppressWarnings("removal")
     public static void setRenderType(Block block, RenderType type) {
         ItemBlockRenderTypes.setRenderLayer(block, type);
     }

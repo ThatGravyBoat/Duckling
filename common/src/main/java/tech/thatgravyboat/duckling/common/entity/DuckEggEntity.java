@@ -3,7 +3,6 @@ package tech.thatgravyboat.duckling.common.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
@@ -32,7 +31,7 @@ public class DuckEggEntity extends ThrowableItemProjectile {
     public void handleEntityEvent(byte status) {
         if (status == 3) {
             for(int i = 0; i < 8; ++i) {
-                this.level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, this.getItem()), this.getX(), this.getY(), this.getZ(), ((double)this.random.nextFloat() - 0.5D) * 0.08D, ((double)this.random.nextFloat() - 0.5D) * 0.08D, ((double)this.random.nextFloat() - 0.5D) * 0.08D);
+                this.level().addParticle(new ItemParticleOption(ParticleTypes.ITEM, this.getItem()), this.getX(), this.getY(), this.getZ(), ((double)this.random.nextFloat() - 0.5D) * 0.08D, ((double)this.random.nextFloat() - 0.5D) * 0.08D, ((double)this.random.nextFloat() - 0.5D) * 0.08D);
             }
         }
     }
@@ -40,35 +39,35 @@ public class DuckEggEntity extends ThrowableItemProjectile {
     @Override
     protected void onHitEntity(@NotNull EntityHitResult entityHitResult) {
         super.onHitEntity(entityHitResult);
-        entityHitResult.getEntity().hurt(DamageSource.thrown(this, this.getOwner()), 0.0F);
+        entityHitResult.getEntity().hurt(level().damageSources().thrown(this, this.getOwner()), 0.0F);
     }
 
     @Override
     protected void onHit(@NotNull HitResult hitResult) {
         super.onHit(hitResult);
-        if (!this.level.isClientSide()) {
+        if (!this.level().isClientSide()) {
             if (this.random.nextInt(8) == 0) {
                 int i = this.random.nextInt(32) == 0 ? 4 : 1;
 
                 for(int j = 0; j < i; ++j) {
-                    DuckEntity duck = ModEntities.DUCK.get().create(this.level);
+                    DuckEntity duck = ModEntities.DUCK.get().create(this.level());
                     if (duck != null) {
                         duck.setAge(-24000);
                         BlockPos pos = this.blockPosition();
                         duck.moveTo(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, this.getYRot(), 0.0F);
-                        this.level.addFreshEntity(duck);
+                        this.level().addFreshEntity(duck);
                     }
                 }
             }
 
-            this.level.broadcastEntityEvent(this, (byte)3);
+            this.level().broadcastEntityEvent(this, (byte)3);
             this.discard();
         }
 
     }
 
     @Override
-    protected Item getDefaultItem() {
+    protected @NotNull Item getDefaultItem() {
         return ModItems.DUCK_EGG.get();
     }
 }

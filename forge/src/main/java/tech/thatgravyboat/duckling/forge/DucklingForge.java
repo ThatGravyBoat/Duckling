@@ -5,6 +5,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
@@ -31,6 +32,7 @@ public class DucklingForge {
         bus.addListener(DucklingForge::addEntityAttributes);
         bus.addListener(this::onComplete);
         bus.addListener(this::setup);
+        bus.addListener(DucklingForge::onModifyCreativeTabs);
 
         ModItemsImpl.BLOCKS.register(bus);
         ModItemsImpl.ITEMS.register(bus);
@@ -46,7 +48,11 @@ public class DucklingForge {
     }
 
     public void setup(FMLCommonSetupEvent event) {
-        Duckling.lateInit();
+        event.enqueueWork(Duckling::lateInit);
+    }
+
+    public static void onModifyCreativeTabs(BuildCreativeModeTabContentsEvent event) {
+        Duckling.addCreativeTabContent(event.getTabKey(), event::accept);
     }
 
     public static void addEntityAttributes(EntityAttributeCreationEvent event) {

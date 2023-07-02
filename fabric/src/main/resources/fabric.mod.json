@@ -25,7 +25,7 @@
   },
   "depends": {
     "fabric": "*",
-    "minecraft": ">=1.19",
-    "geckolib3": "*"
+    "minecraft": ">=1.20",
+    "geckolib": "*"
   }
 }

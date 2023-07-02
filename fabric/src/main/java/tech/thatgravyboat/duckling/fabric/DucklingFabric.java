@@ -1,7 +1,12 @@
 package tech.thatgravyboat.duckling.fabric;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -24,5 +29,11 @@ public class DucklingFabric implements ModInitializer {
         FabricSpawns.addSpawns();
 
         Duckling.lateInit();
+
+        ItemGroupEvents.MODIFY_ENTRIES_ALL.register((group, items) -> {
+            ResourceLocation key = BuiltInRegistries.CREATIVE_MODE_TAB.getKey(group);
+            if (key == null) return;
+            Duckling.addCreativeTabContent(ResourceKey.create(Registries.CREATIVE_MODE_TAB, key), items::accept);
+        });
     }
 }
