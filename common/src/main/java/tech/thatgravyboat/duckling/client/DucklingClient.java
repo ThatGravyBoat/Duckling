@@ -10,6 +10,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
 import tech.thatgravyboat.duckling.client.rendering.DuckRenderer;
 import tech.thatgravyboat.duckling.client.rendering.QuacklingRenderer;
+import tech.thatgravyboat.duckling.common.registry.ModBlocks;
 import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 
@@ -25,7 +26,7 @@ public class DucklingClient {
         registerEntityRenderer(ModEntities.QUACKLING.get(), QuacklingRenderer::new);
         registerEntityRenderer(ModEntities.DUCK_EGG.get(), ThrownItemRenderer::new);
 
-        setRenderType(ModItems.HOLIDAY_FRUIT_CAKE_BLOCK.get(), RenderType.cutout());
+        setRenderType(ModBlocks.HOLIDAY_FRUIT_CAKE_BLOCK.get(), RenderType.cutout());
     }
 
     @ExpectPlatform

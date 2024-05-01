@@ -20,6 +20,7 @@ import software.bernie.geckolib.GeckoLib;
 import tech.thatgravyboat.duckling.common.entity.DuckEggEntity;
 import tech.thatgravyboat.duckling.common.entity.DuckEntity;
 import tech.thatgravyboat.duckling.common.entity.QuacklingEntity;
+import tech.thatgravyboat.duckling.common.registry.ModBlocks;
 import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 import tech.thatgravyboat.duckling.common.registry.ModSounds;
@@ -32,9 +33,10 @@ public class Duckling {
 
     public static void init() {
         GeckoLib.initialize();
-        ModItems.register();
-        ModEntities.register();
-        ModSounds.register();
+        ModBlocks.BLOCKS.init();
+        ModItems.ITEMS.init();
+        ModEntities.ENTITIES.init();
+        ModSounds.SOUNDS.init();
     }
 
     public static void lateInit() {
