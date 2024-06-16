@@ -1,8 +1,6 @@
 {
-  "type": "forge:add_spawns",
-  "biomes": [
-    "minecraft:river"
-  ],
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_river",
   "spawners" : {
     "type": "duckling:duck",
     "weight": 3,

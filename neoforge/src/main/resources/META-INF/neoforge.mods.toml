@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[46,)"
+loaderVersion = "[1,)"
 #issueTrackerURL = ""
 license = "All Rights Reserved"
 
@@ -13,18 +13,18 @@ Adds some quacky little friends!
 Quacking Sounds - freesoundslibrary.com/duck-quack/
 Note: Sounds were edited out and pitched up and down."""
 
-[[dependencies.duckling]]
-    modId = "forge"
-    mandatory = true
-    versionRange = "[46,)"
-    ordering = "NONE"
+[[dependencies.vanity]]
+    modId = "neoforge"
+    type="required"
+    versionRange = "[20.5,)"
+    ordering = "AFTER"
     side = "BOTH"
 
 [[dependencies.duckling]]
     modId = "minecraft"
-    mandatory = true
-    versionRange = "[1.20,)"
-    ordering = "NONE"
+    type="required"
+    versionRange = "[1.21,)"
+    ordering = "AFTER"
     side = "BOTH"
 
 [[dependencies.duckling]]

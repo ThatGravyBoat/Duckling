@@ -1,23 +1,14 @@
 package tech.thatgravyboat.duckling;
 
-import net.minecraft.Util;
-import net.minecraft.core.Position;
-import net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
-import org.jetbrains.annotations.NotNull;
-import software.bernie.geckolib.GeckoLib;
-import tech.thatgravyboat.duckling.common.entity.DuckEggEntity;
 import tech.thatgravyboat.duckling.common.entity.DuckEntity;
 import tech.thatgravyboat.duckling.common.entity.QuacklingEntity;
 import tech.thatgravyboat.duckling.common.registry.ModBlocks;
@@ -32,7 +23,6 @@ public class Duckling {
     public static final String MODID = "duckling";
 
     public static void init() {
-        GeckoLib.initialize();
         ModBlocks.BLOCKS.init();
         ModItems.ITEMS.init();
         ModEntities.ENTITIES.init();
@@ -40,11 +30,7 @@ public class Duckling {
     }
 
     public static void lateInit() {
-        DispenserBlock.registerBehavior(ModItems.DUCK_EGG.get(), new AbstractProjectileDispenseBehavior() {
-            protected @NotNull Projectile getProjectile(@NotNull Level level, @NotNull Position pos, @NotNull ItemStack stack) {
-                return Util.make(new DuckEggEntity(level, pos.x(), pos.y(), pos.z()), (egg) -> egg.setItem(stack));
-            }
-        });
+        DispenserBlock.registerProjectileBehavior(ModItems.DUCK_EGG.get());
     }
 
     public static void addEntityAttributes(Map<EntityType<? extends LivingEntity>, AttributeSupplier.Builder> attributes) {
@@ -52,9 +38,18 @@ public class Duckling {
         attributes.put(ModEntities.QUACKLING.get(), QuacklingEntity.createQuacklingAttributes());
     }
 
-    private static final ResourceKey<CreativeModeTab> FOOD = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation("food_and_drinks"));
-    private static final ResourceKey<CreativeModeTab> SPAWN_EGGS = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation("spawn_eggs"));
-    private static final ResourceKey<CreativeModeTab> INGREDIENTS = ResourceKey.create(Registries.CREATIVE_MODE_TAB, new ResourceLocation("ingredients"));
+    private static final ResourceKey<CreativeModeTab> FOOD = ResourceKey.create(
+            Registries.CREATIVE_MODE_TAB,
+            ResourceLocation.withDefaultNamespace("food_and_drinks")
+    );
+    private static final ResourceKey<CreativeModeTab> SPAWN_EGGS = ResourceKey.create(
+            Registries.CREATIVE_MODE_TAB,
+            ResourceLocation.withDefaultNamespace("spawn_eggs")
+    );
+    private static final ResourceKey<CreativeModeTab> INGREDIENTS = ResourceKey.create(
+            Registries.CREATIVE_MODE_TAB,
+            ResourceLocation.withDefaultNamespace("ingredients")
+    );
 
     public static void addCreativeTabContent(ResourceKey<CreativeModeTab> tab, Consumer<Item> consumer) {
         if (tab == FOOD) {
@@ -72,6 +67,6 @@ public class Duckling {
     }
 
     public static ResourceLocation modId(String path) {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }

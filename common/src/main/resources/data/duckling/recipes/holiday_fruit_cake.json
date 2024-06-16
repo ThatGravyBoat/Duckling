@@ -10,14 +10,9 @@
     {
       "item": "minecraft:sweet_berries"
     },
-    [
-      {
-        "item": "minecraft:egg"
-      },
-      {
-        "item": "duckling:duck_egg"
-      }
-    ]
+    {
+      "tag": "c:eggs"
+    }
   ],
   "result": {
     "item": "duckling:holiday_fruit_cake",

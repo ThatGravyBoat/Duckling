@@ -27,17 +27,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.thatgravyboat.duckling.common.constants.AnimationConstants;
 import tech.thatgravyboat.duckling.common.constants.DuckVariant;
@@ -56,7 +56,7 @@ public class DuckEntity extends TamableAnimal implements GeoEntity {
     public DuckEntity(EntityType<DuckEntity> entityType, Level level) {
         super(entityType, level);
         this.eggLayTime = this.random.nextInt(6000) + 6000;
-        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+        this.setPathfindingMalus(PathType.WATER, 0.0F);
     }
 
     public static boolean canDuckSpawn(EntityType<DuckEntity> entity, LevelAccessor level, MobSpawnType type, BlockPos pos, RandomSource random) {
@@ -87,9 +87,9 @@ public class DuckEntity extends TamableAnimal implements GeoEntity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.getEntityData().define(VARIANT, (byte)1);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(VARIANT, (byte)1);
     }
 
     @Override
@@ -105,10 +105,10 @@ public class DuckEntity extends TamableAnimal implements GeoEntity {
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor world, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
-        var initialize = super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
-        this.getEntityData().set(VARIANT, world.getRandom().nextBoolean() ? DuckVariant.MALLARD.id : DuckVariant.PEKIN.id);
-        return initialize;
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor serverLevelAccessor, DifficultyInstance difficultyInstance, MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+        var group = super.finalizeSpawn(serverLevelAccessor, difficultyInstance, mobSpawnType, spawnGroupData);
+        this.getEntityData().set(VARIANT, serverLevelAccessor.getRandom().nextBoolean() ? DuckVariant.MALLARD.id : DuckVariant.PEKIN.id);
+        return group;
     }
 
     @Nullable
@@ -186,11 +186,6 @@ public class DuckEntity extends TamableAnimal implements GeoEntity {
         return duckEntity;
     }
 
-    @Override
-    protected float getStandingEyeHeight(@NotNull Pose pose, @NotNull EntityDimensions dimensions) {
-        return this.isBaby() ? dimensions.height * 0.85F : dimensions.height * 0.92F;
-    }
-
     public DuckVariant getVariant() {
         return DuckVariant.getVariant(this.entityData.get(VARIANT));
     }
@@ -216,9 +211,10 @@ public class DuckEntity extends TamableAnimal implements GeoEntity {
         }
         return PlayState.CONTINUE;
     }
+
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar data) {
-        data.add(new AnimationController<>(this, "controller", 10, this::predicate));
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<GeoAnimatable>(this, "controller", 10, this::predicate));
     }
 
     @Override

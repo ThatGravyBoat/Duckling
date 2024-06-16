@@ -2,7 +2,7 @@
   "parent": "minecraft:husbandry/root",
   "display": {
     "icon": {
-      "item": "minecraft:chicken"
+      "id": "minecraft:chicken"
     },
     "title": {
       "translate": "advancements.duckling.breed_duck.title"

@@ -1,6 +1,6 @@
 package tech.thatgravyboat.duckling.common.constants;
 
-import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.animation.RawAnimation;
 
 public class AnimationConstants {
 

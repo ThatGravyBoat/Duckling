@@ -33,7 +33,7 @@ public class ModEntities {
                 factory, category,
                 true, true, false, false,
                 ImmutableSet.of(), EntityDimensions.scalable(width, height),
-                5, 3, FeatureFlags.VANILLA_SET
+                1f, 5, 3, FeatureFlags.VANILLA_SET
         );
     }
 }

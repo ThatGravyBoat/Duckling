@@ -1,22 +1,22 @@
 {
-  "parent": "duckling:pet_duck",
+  "parent": "minecraft:husbandry/root",
   "display": {
     "icon": {
-      "item": "minecraft:leather_helmet"
+      "id": "minecraft:feather"
     },
     "title": {
-      "translate": "advancements.duckling.agent_d.title"
+      "translate": "advancements.duckling.pet_duck.title"
     },
     "description": {
-      "translate": "advancements.duckling.agent_d.description"
+      "translate": "advancements.duckling.pet_duck.description"
     },
     "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
-    "hidden": true
+    "hidden": false
   },
   "criteria": {
-    "pet_agent_d": {
+    "pet_duck": {
       "trigger": "player_interacted_with_entity",
       "conditions": {
         "item": {
@@ -25,15 +25,14 @@
           ]
         },
         "entity": {
-          "type": "duckling:duck",
-          "nbt": "{\"AgentD\":1b}"
+          "type": "duckling:duck"
         }
       }
     }
   },
   "requirements": [
     [
-      "pet_agent_d"
+      "pet_duck"
     ]
   ]
 }

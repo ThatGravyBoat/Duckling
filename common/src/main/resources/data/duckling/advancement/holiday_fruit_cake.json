@@ -2,7 +2,7 @@
   "parent": "minecraft:husbandry/root",
   "display": {
     "icon": {
-      "item": "duckling:holiday_fruit_cake"
+      "id": "duckling:holiday_fruit_cake"
     },
     "title": {
       "translate": "advancements.duckling.holiday_fruit_cake.title"

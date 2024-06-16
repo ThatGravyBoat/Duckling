@@ -22,9 +22,9 @@ public class ModItems {
 
     public static final ResourcefulRegistry<Item> ITEMS = ResourcefulRegistries.create(BuiltInRegistries.ITEM, Duckling.MODID);
 
-    private static final FoodProperties FRUIT_CAKE_FOOD = new FoodProperties.Builder().nutrition(3).saturationMod(1).build();
-    private static final FoodProperties RAW_DUCK_FOOD = new FoodProperties.Builder().nutrition(2).saturationMod(0.3F).effect(new MobEffectInstance(MobEffects.HUNGER, 600, 0), 0.3F).meat().build();
-    private static final FoodProperties COOKED_DUCK_FOOD = new FoodProperties.Builder().nutrition(6).saturationMod(0.6F).meat().build();
+    private static final FoodProperties FRUIT_CAKE_FOOD = new FoodProperties.Builder().nutrition(3).saturationModifier(1).build();
+    private static final FoodProperties RAW_DUCK_FOOD = new FoodProperties.Builder().nutrition(2).saturationModifier(0.3F).effect(new MobEffectInstance(MobEffects.HUNGER, 600, 0), 0.3F).build();
+    private static final FoodProperties COOKED_DUCK_FOOD = new FoodProperties.Builder().nutrition(6).saturationModifier(0.6F).build();
 
 
     public static final Supplier<Item> HOLIDAY_FRUIT_CAKE = ITEMS.register("holiday_fruit_cake", () -> new HolidayFruitCakeItem(ModBlocks.HOLIDAY_FRUIT_CAKE_BLOCK.get(), new Item.Properties().food(FRUIT_CAKE_FOOD)));

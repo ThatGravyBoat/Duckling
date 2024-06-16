@@ -24,21 +24,23 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import tech.thatgravyboat.duckling.common.constants.AnimationConstants;
+import tech.thatgravyboat.duckling.common.items.ModTags;
 import tech.thatgravyboat.duckling.common.registry.ModEntities;
 import tech.thatgravyboat.duckling.common.registry.ModItems;
 import tech.thatgravyboat.duckling.common.registry.ModSounds;
@@ -47,7 +49,11 @@ import java.util.EnumSet;
 
 public class QuacklingEntity extends AbstractVillager implements GeoEntity {
 
-    private static final VillagerTrades.ItemListing HOLIDAY_CAKE = (entity, random) -> new MerchantOffer(new ItemStack(Items.EMERALD, 3), new ItemStack(ModItems.HOLIDAY_FRUIT_CAKE.get(), 3), 12, 10, 0.05F);
+    private static final VillagerTrades.ItemListing HOLIDAY_CAKE = (entity, random) -> new MerchantOffer(
+            new ItemCost(Items.EMERALD, 3),
+            new ItemStack(ModItems.HOLIDAY_FRUIT_CAKE.get(), 3),
+            12, 10, 0.05F
+    );
 
     public static final Ingredient BREEDING_INGREDIENT = Ingredient.of(ModItems.HOLIDAY_FRUIT_CAKE.get());
     private static final EntityDataAccessor<Boolean> DRIPPED = SynchedEntityData.defineId(QuacklingEntity.class, EntityDataSerializers.BOOLEAN);
@@ -65,17 +71,18 @@ public class QuacklingEntity extends AbstractVillager implements GeoEntity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.getEntityData().define(DRIPPED, false);
-        this.getEntityData().define(FISHING_ROD, ItemStack.EMPTY);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DRIPPED, false);
+        builder.define(FISHING_ROD, ItemStack.EMPTY);
     }
 
+
     @Override
-    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor world, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnReason, @Nullable SpawnGroupData entityData, @Nullable CompoundTag entityNbt) {
-        var initialize = super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
-        setDripped(world.getRandom().nextBoolean());
-        return initialize;
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficultyInstance, MobSpawnType mobSpawnType, @Nullable SpawnGroupData spawnGroupData) {
+        var group = super.finalizeSpawn(level, difficultyInstance, mobSpawnType, spawnGroupData);
+        setDripped(level.getRandom().nextBoolean());
+        return group;
     }
 
     public boolean isDripped() {
@@ -193,11 +200,12 @@ public class QuacklingEntity extends AbstractVillager implements GeoEntity {
     @Override
     public @NotNull InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
-        if (itemStack.is(Items.FISHING_ROD) && !this.isFishing()) {
+        if (itemStack.is(ModTags.FISHING_RODS) && !this.isFishing()) {
             getEntityData().set(FISHING_ROD, itemStack);
             player.setItemInHand(hand, ItemStack.EMPTY);
             return InteractionResult.sidedSuccess(level().isClientSide());
         }
+
         if (this.isFishing() && itemStack.isEmpty() && player.isShiftKeyDown()) {
             var stack = getEntityData().get(FISHING_ROD).copy();
             getEntityData().set(FISHING_ROD, ItemStack.EMPTY);
@@ -205,7 +213,7 @@ public class QuacklingEntity extends AbstractVillager implements GeoEntity {
             return InteractionResult.sidedSuccess(level().isClientSide());
         }
 
-        if (itemStack.is(Items.SHEARS) && isDripped()) {
+        if (itemStack.is(ModTags.SHEARS) && isDripped()) {
             setDripped(false);
             spawnAtLocation(Items.BIG_DRIPLEAF);
             return InteractionResult.sidedSuccess(level().isClientSide());
@@ -219,7 +227,7 @@ public class QuacklingEntity extends AbstractVillager implements GeoEntity {
                 player.awardStat(Stats.TALKED_TO_VILLAGER);
             }
 
-            if (!this.getOffers().isEmpty() && !level().isClientSide()) {
+            if (!level().isClientSide() && !this.getOffers().isEmpty()) {
                 this.setTradingPlayer(player);
                 this.openTradingScreen(player, this.getDisplayName(), 1);
             }
@@ -233,8 +241,12 @@ public class QuacklingEntity extends AbstractVillager implements GeoEntity {
     public void readAdditionalSaveData(@NotNull CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         setDripped(nbt.getBoolean("Dripped"));
-        if (nbt.contains("FishingRod", 10))
-            this.getEntityData().set(FISHING_ROD, ItemStack.of(nbt.getCompound("FishingRod")));
+        if (nbt.contains("FishingRod", 10)) {
+            this.getEntityData().set(
+                    FISHING_ROD,
+                    ItemStack.parseOptional(level().registryAccess(), nbt.getCompound("FishingRod"))
+            );
+        }
     }
 
     @Override
@@ -243,7 +255,7 @@ public class QuacklingEntity extends AbstractVillager implements GeoEntity {
         nbt.putBoolean("Dripped", isDripped());
         var stack = this.getEntityData().get(FISHING_ROD);
         if (!stack.isEmpty())
-            nbt.put("FishingRod", stack.save(new CompoundTag()));
+            nbt.put("FishingRod", stack.save(level().registryAccess()));
     }
 
     @Nullable

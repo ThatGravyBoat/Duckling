@@ -1,6 +1,6 @@
 {
-  "type": "forge:add_spawns",
-  "biomes": "#forge:is_swamp",
+  "type": "neoforge:add_spawns",
+  "biomes": "#c:is_swamp",
   "spawners" : {
     "type": "duckling:quackling",
     "weight": 1,

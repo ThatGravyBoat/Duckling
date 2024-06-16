@@ -19,6 +19,8 @@ import tech.thatgravyboat.duckling.common.entity.QuacklingEntity;
 
 public class QuacklingRenderer extends GeoEntityRenderer<QuacklingEntity> {
 
+    private ItemStack fishingRod;
+
     public QuacklingRenderer(EntityRendererProvider.Context ctx) {
         super(ctx, new QuacklingModel());
     }
@@ -28,16 +30,14 @@ public class QuacklingRenderer extends GeoEntityRenderer<QuacklingEntity> {
         return this.model.getTextureResource(entity);
     }
 
-    private ItemStack fishingRod;
-
     @Override
-    public void preRender(PoseStack poseStack, QuacklingEntity animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-        fishingRod = animatable.getEntityData().get(QuacklingEntity.FISHING_ROD);
+    public void preRender(PoseStack poseStack, QuacklingEntity animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+        this.fishingRod = animatable.getEntityData().get(QuacklingEntity.FISHING_ROD);
     }
 
     @Override
-    public void renderRecursively(PoseStack stack, QuacklingEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void renderRecursively(PoseStack stack, QuacklingEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         if (bone.getName().equals("rod") && !fishingRod.isEmpty() && bone.getPosY() == 13 && bone.getPosZ() == -12) {
             stack.pushPose();
             stack.mulPose(Axis.YN.rotationDegrees(180));
@@ -49,9 +49,8 @@ public class QuacklingRenderer extends GeoEntityRenderer<QuacklingEntity> {
 
             stack.popPose();
         }
-        super.renderRecursively(stack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        super.renderRecursively(stack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
     }
-
 
     @Override
     public RenderType getRenderType(QuacklingEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
