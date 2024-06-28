@@ -1,4 +1,4 @@
-package tech.thatgravyboat.duckling.common.registry.forge;
+package tech.thatgravyboat.duckling.common.registry.neoforge;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;

@@ -1,4 +1,4 @@
-package tech.thatgravyboat.duckling.client.forge;
+package tech.thatgravyboat.duckling.client.neoforge;
 
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;

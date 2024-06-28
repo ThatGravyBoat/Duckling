@@ -21,20 +21,18 @@ public class DuckEggItem extends Item implements ProjectileItem {
         super(settings);
     }
 
-    public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player user, @NotNull InteractionHand hand) {
-        ItemStack itemStack = user.getItemInHand(hand);
-        world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
+    public @NotNull InteractionResultHolder<ItemStack> use(Level world, Player player, @NotNull InteractionHand hand) {
+        ItemStack itemStack = player.getItemInHand(hand);
+        world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.EGG_THROW, SoundSource.PLAYERS, 0.5F, 0.4F / (world.getRandom().nextFloat() * 0.4F + 0.8F));
         if (!world.isClientSide()) {
-            DuckEggEntity eggEntity = new DuckEggEntity(world, user);
+            DuckEggEntity eggEntity = new DuckEggEntity(world, player);
             eggEntity.setItem(itemStack);
-            eggEntity.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0F, 1.5F, 1.0F);
+            eggEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.5F, 1.0F);
             world.addFreshEntity(eggEntity);
         }
 
-        user.awardStat(Stats.ITEM_USED.get(this));
-        if (!user.getAbilities().instabuild) {
-            itemStack.shrink(1);
-        }
+        player.awardStat(Stats.ITEM_USED.get(this));
+        itemStack.consume(1, player);
 
         return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide());
     }

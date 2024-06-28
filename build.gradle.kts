@@ -82,7 +82,7 @@ subprojects {
 
     tasks.processResources {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        filesMatching(listOf("META-INF/mods.toml", "fabric.mod.json")) {
+        filesMatching(listOf("META-INF/neoforge.mods.toml", "fabric.mod.json")) {
             expand("version" to project.version)
         }
     }

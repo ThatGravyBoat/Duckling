@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import tech.thatgravyboat.duckling.Duckling;
 import tech.thatgravyboat.duckling.common.registry.ModSpawns;
@@ -25,7 +26,7 @@ public class DucklingFabric implements ModInitializer {
         Duckling.addEntityAttributes(attributes);
         attributes.forEach(FabricDefaultAttributeRegistry::register);
 
-        ModSpawns.addSpawnRules();
+        ModSpawns.addSpawnRules(SpawnPlacements::register);
         FabricSpawns.addSpawns();
 
         Duckling.lateInit();
